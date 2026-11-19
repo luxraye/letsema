@@ -65,3 +65,11 @@ export function validateDefinition(d: InstanceDefinition): string[] {
 
 export const pula = (n: number | null | undefined) => n == null ? '–' : `P${Math.round(n).toLocaleString('en-US')}`;
 export const prizePool = (d: InstanceDefinition) => d.prizes.reduce((s, p) => s + p.amount, 0);
+
+const OPEN_KEYS = ['apply', 'register', 'build', 'submit'];
+export function acceptingEntries(def: InstanceDefinition, status: string, now = new Date()) {
+  if (status !== 'live') return false;
+  const day = now.toISOString().slice(0, 10);
+  return def.stages.some((s) => OPEN_KEYS.includes(s.key) && s.starts <= day && day <= s.ends);
+}
+

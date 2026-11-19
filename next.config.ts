@@ -11,6 +11,7 @@ const securityHeaders = [
 const config: NextConfig = {
   output: 'standalone',
   poweredByHeader: false,
+  agentRules: false,
   serverExternalPackages: ['pg'],
   experimental: { serverActions: { bodySizeLimit: '12mb' } },
   async headers() {
