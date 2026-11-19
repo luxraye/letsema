@@ -1,55 +1,52 @@
-import type { Criterion } from "@/lib/instance-schema";
+import type { Criterion } from '@/db/schema';
+import { canonical, sha256 } from './crypto';
 
-export const SCORE_MIN = 1;
-export const SCORE_MAX = 5;
-
-export const SCORE_GUIDE: Record<number, string> = {
-  1: "Weak",
-  2: "Below expectations",
-  3: "Meets expectations",
-  4: "Strong",
-  5: "Exceptional",
-};
-
-/** Weighted score out of 100 from 1-5 scores. Returns null if any criterion is missing. */
-export function weightedTotal(criteria: Criterion[], scores: Record<string, number>): number | null {
-  if (!criteria.length) return null;
-  let total = 0;
-  for (const c of criteria) {
-    const s = scores[c.key];
-    if (typeof s !== "number" || s < SCORE_MIN || s > SCORE_MAX) return null;
-    total += (s / SCORE_MAX) * c.weight;
-  }
-  return Math.round(total * 10) / 10;
+/** Each criterion is scored 0 to 10; the total is a weighted score out of 100. */
+export function weightedTotal(rubric: Criterion[], scores: Record<string, number>) {
+  return Math.round(rubric.reduce((s, c) => s + ((scores[c.key] ?? 0) / 10) * c.weight, 0) * 10) / 10;
 }
 
-export interface PanelSummary {
-  count: number;
-  mean: number | null;
-  min: number | null;
-  max: number | null;
-  spread: number | null;
-  /** Evaluators disagree by more than 20 points. */
-  disagreement: boolean;
-  perCriterion: Record<string, number>;
+export const mean = (xs: number[]) => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0;
+export const stdev = (xs: number[]) => { if (xs.length < 2) return 0; const m = mean(xs); return Math.sqrt(xs.reduce((s, x) => s + (x - m) ** 2, 0) / (xs.length - 1)); };
+
+type Ev = { entryId: string; evaluatorId: string; total: number };
+
+/**
+ * Reviewer calibration: some evaluators mark hard, some soft. We rescale each evaluator's
+ * totals to the panel's overall mean and spread (z-score), so an idea is not punished
+ * for drawing a harsh marker. Needs at least 3 scores from an evaluator, otherwise raw.
+ */
+export function calibrate(evals: Ev[]) {
+  const all = evals.map((e) => e.total);
+  const gm = mean(all); const gs = stdev(all) || 1;
+  const by = new Map<string, number[]>();
+  for (const e of evals) by.set(e.evaluatorId, [...(by.get(e.evaluatorId) ?? []), e.total]);
+  const stats = new Map([...by].map(([k, xs]) => [k, { m: mean(xs), s: stdev(xs), n: xs.length }]));
+  return evals.map((e) => {
+    const st = stats.get(e.evaluatorId)!;
+    const adj = st.n >= 3 && st.s > 0 ? gm + ((e.total - st.m) / st.s) * gs : e.total;
+    return { ...e, calibrated: Math.max(0, Math.min(100, Math.round(adj * 10) / 10)) };
+  });
 }
 
-export function summarise(
-  criteria: Criterion[],
-  evaluations: { total: number | null; scores: unknown; submittedAt: Date | string | null; conflict: boolean | null }[]
-): PanelSummary {
-  const done = evaluations.filter((e) => e.submittedAt && e.conflict === false && typeof e.total === "number");
-  const totals = done.map((e) => e.total as number);
-  const perCriterion: Record<string, number> = {};
-  for (const c of criteria) {
-    const vals = done.map((e) => (e.scores as Record<string, number>)?.[c.key]).filter((v) => typeof v === "number");
-    if (vals.length) perCriterion[c.key] = Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10;
-  }
-  if (!totals.length) {
-    return { count: 0, mean: null, min: null, max: null, spread: null, disagreement: false, perCriterion };
-  }
-  const mean = Math.round((totals.reduce((a, b) => a + b, 0) / totals.length) * 10) / 10;
-  const min = Math.min(...totals);
-  const max = Math.max(...totals);
-  return { count: totals.length, mean, min, max, spread: max - min, disagreement: max - min > 20, perCriterion };
+export function evaluatorBias(evals: Ev[]) {
+  const gm = mean(evals.map((e) => e.total));
+  const by = new Map<string, number[]>();
+  for (const e of evals) by.set(e.evaluatorId, [...(by.get(e.evaluatorId) ?? []), e.total]);
+  return [...by].map(([evaluatorId, xs]) => ({ evaluatorId, n: xs.length, mean: Math.round(mean(xs) * 10) / 10, bias: Math.round((mean(xs) - gm) * 10) / 10 }));
+}
+
+/** Flag entries where evaluators disagree by more than 20 points, so the panel discusses them. */
+export const DISAGREE = 20;
+export function spread(totals: number[]) { return totals.length < 2 ? 0 : Math.max(...totals) - Math.min(...totals); }
+
+export type Standing = { entryId: string; ref: string; title: string; score: number; n: number; spread: number; rank: number };
+
+/** Reproducible leaderboard: same scores in, same order and same hash out. Ties break by earliest submission. */
+export function leaderboard(rows: { entryId: string; ref: string; title: string; submittedAt: Date | null; totals: number[] }[]) {
+  const scored = rows.filter((r) => r.totals.length).map((r) => ({ ...r, score: Math.round(mean(r.totals) * 10) / 10 }));
+  scored.sort((a, b) => b.score - a.score || (a.submittedAt?.getTime() ?? 0) - (b.submittedAt?.getTime() ?? 0) || a.ref.localeCompare(b.ref));
+  const standings: Standing[] = scored.map((r, i) => ({ entryId: r.entryId, ref: r.ref, title: r.title, score: r.score, n: r.totals.length, spread: spread(r.totals), rank: i + 1 }));
+  const hash = sha256(canonical(standings.map((s) => [s.ref, s.score, s.rank])));
+  return { standings, hash };
 }

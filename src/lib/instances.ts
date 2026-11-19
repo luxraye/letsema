@@ -1,112 +1,75 @@
-import type { Entry, EntryField, EntryFile, Template } from "@prisma/client";
-import { prisma } from "@/lib/prisma";
-import { canonicalFields, parseSchema, type InstanceSchema } from "@/lib/instance-schema";
-import { sha256, verifyHash } from "@/lib/hash";
-import { verifySubmission } from "@/lib/jwt-sign";
+import type { InstanceDefinition, Stage } from '@/db/schema';
+import { canonical, sha256 } from './crypto';
 
-export type Instance = Entry;
-export type InstanceField = EntryField;
-export type InstanceFile = EntryFile;
+export const rulesHash = (d: InstanceDefinition) => sha256(canonical(d));
 
-/** File metadata without the bytes, safe to send to the browser. */
-export const fileMetaSelect = {
-  id: true,
-  fileKey: true,
-  fileName: true,
-  fileExtension: true,
-  mimeType: true,
-  fileSize: true,
-  clientHash: true,
-  serverHash: true,
-  uploadedAt: true,
-} as const;
-
-export function schemaOf(template?: Template | null): InstanceSchema {
-  if (!template) return { fields: [], required_files: [], criteria: [] };
-  const parsed = parseSchema(template.schema);
-  return parsed.schema ?? { fields: [], required_files: [], criteria: [] };
+export function currentStage(d: InstanceDefinition, now = new Date()): { stage: Stage | null; index: number; state: 'before' | 'during' | 'after' } {
+  const t = now.toISOString().slice(0, 10);
+  const i = d.stages.findIndex((s) => s.starts <= t && t <= s.ends);
+  if (i >= 0) return { stage: d.stages[i], index: i, state: 'during' };
+  if (d.stages.length && t < d.stages[0].starts) return { stage: d.stages[0], index: 0, state: 'before' };
+  const next = d.stages.findIndex((s) => s.starts > t);
+  if (next > 0) return { stage: d.stages[next], index: next, state: 'before' };
+  return { stage: d.stages.at(-1) ?? null, index: d.stages.length - 1, state: 'after' };
 }
 
-export function fieldsToRecord(fields: Pick<EntryField, "fieldKey" | "fieldValue">[]) {
-  const values: Record<string, string> = {};
-  fields.forEach((f) => (values[f.fieldKey] = f.fieldValue));
-  return values;
-}
-
-export function dataHashOf(fields: Pick<EntryField, "fieldKey" | "fieldValue">[]) {
-  return sha256(canonicalFields(fieldsToRecord(fields)));
-}
-
-export interface IntegrityReport {
-  receiptValid: boolean;
-  receiptReason: string | null;
-  dataMatches: boolean;
-  files: { fileKey: string; fileName: string; storedHashMatches: boolean; inReceipt: boolean }[];
-  faithfulnessHash?: string | null;
-  faithfulnessVerified?: boolean;
-  ok: boolean;
-}
-
-/**
- * Re-check a submitted entry end to end: the signed receipt, the field data
- * against the hash in the receipt, and every stored file against its hash.
- */
-export async function checkIntegrity(instanceId: string): Promise<IntegrityReport | null> {
-  const entry = await prisma.entry.findUnique({
-    where: { id: instanceId },
-    include: { fields: true, files: true },
-  });
-  if (!entry?.submissionJwt) return null;
-  return integrityOf(entry);
-}
-
-export function integrityOf(
-  entry: Entry & { fields: EntryField[]; files: EntryFile[] }
-): IntegrityReport | null {
-  if (!entry.submissionJwt) return null;
-  const result = verifySubmission(entry.submissionJwt);
-  const payload = result.payload;
-  const dataMatches = !!payload && payload.dataHash === dataHashOf(entry.fields);
-  const files = entry.files.map((f) => {
-    const item = payload?.fileHashes?.find((h) => h.fileKey === f.fileKey);
-    return {
-      fileKey: f.fileKey,
-      fileName: f.fileName,
-      storedHashMatches: verifyHash(Buffer.from(f.content), f.serverHash),
-      inReceipt: !!item && item.hash === f.serverHash,
-    };
-  });
-  const allFilesListed = (payload?.fileHashes?.length ?? 0) === entry.files.length;
-  const faithfulnessHash = payload?.faithfulnessHash ?? null;
-  const faithfulnessVerified = !payload?.faithfulnessHash || typeof payload.faithfulnessHash === "string";
-
-  return {
-    receiptValid: result.valid,
-    receiptReason: result.valid ? null : result.reason,
-    dataMatches,
-    files,
-    faithfulnessHash,
-    faithfulnessVerified,
-    ok: result.valid && dataMatches && allFilesListed && files.every((f) => f.storedHashMatches && f.inReceipt),
-  };
-}
-
-/**
- * Who may read an idea: its innovator, CEDA staff and the panel, or an evaluator
- * assigned to it who has declared no conflict of interest.
- */
-export async function canReadInstance(
-  user: { id: string; role: string },
-  entry: { id: string; innovatorId: string }
-): Promise<boolean> {
-  if (entry.innovatorId === user.id) return true;
-  if (["ADMIN", "SUPERADMIN", "ADJUDICATOR", "PARTNER_ADMIN", "COMMITTEE_OBSERVER"].includes(user.role)) return true;
-  if (user.role === "EVALUATOR") {
-    const ev = await prisma.evaluation.findUnique({
-      where: { entryId_evaluatorId: { entryId: entry.id, evaluatorId: user.id } },
-      select: { conflict: true },
-    });
-    return ev?.conflict === false;
+/** Plain-language list of what changed between two rule sets, recorded with every new version. */
+export function describeChanges(a: InstanceDefinition, b: InstanceDefinition): string[] {
+  const out: string[] = [];
+  const byKey = <T extends { key: string }>(xs: T[]) => new Map(xs.map((x) => [x.key, x]));
+  const ra = byKey(a.rubric); const rb = byKey(b.rubric);
+  for (const [k, c] of rb) {
+    const o = ra.get(k);
+    if (!o) out.push(`Added scoring criterion "${c.label}" (${c.weight}%)`);
+    else if (o.weight !== c.weight) out.push(`"${c.label}" weight ${o.weight}% → ${c.weight}%`);
+    else if (o.label !== c.label || o.guide !== c.guide) out.push(`Reworded criterion "${c.label}"`);
   }
-  return false;
+  for (const [k, o] of ra) if (!rb.has(k)) out.push(`Removed scoring criterion "${o.label}"`);
+  const fa = byKey(a.form); const fb = byKey(b.form);
+  for (const [k, f] of fb) {
+    const o = fa.get(k);
+    if (!o) out.push(`Added form question "${f.label}"`);
+    else if (canonical(o) !== canonical(f)) out.push(`Changed form question "${f.label}"`);
+  }
+  for (const [k, o] of fa) if (!fb.has(k)) out.push(`Removed form question "${o.label}"`);
+  const sa = byKey(a.stages); const sb = byKey(b.stages);
+  for (const [k, s] of sb) {
+    const o = sa.get(k);
+    if (!o) out.push(`Added stage "${s.label}"`);
+    else if (o.starts !== s.starts || o.ends !== s.ends) out.push(`"${s.label}" dates ${o.starts}–${o.ends} → ${s.starts}–${s.ends}`);
+  }
+  for (const [k, o] of sa) if (!sb.has(k)) out.push(`Removed stage "${o.label}"`);
+  if (canonical(a.eligibility) !== canonical(b.eligibility)) out.push('Changed eligibility rules');
+  if (canonical(a.team) !== canonical(b.team)) out.push(`Team size ${a.team.min}–${a.team.max} → ${b.team.min}–${b.team.max}`);
+  if (a.reviewersPerEntry !== b.reviewersPerEntry) out.push(`Evaluators per entry ${a.reviewersPerEntry} → ${b.reviewersPerEntry}`);
+  if (a.shortlistSize !== b.shortlistSize) out.push(`Shortlist size ${a.shortlistSize} → ${b.shortlistSize}`);
+  if (canonical(a.prizes) !== canonical(b.prizes)) out.push('Changed prizes');
+  if (a.audience !== b.audience) out.push(`Audience ${a.audience} → ${b.audience}`);
+  return out;
 }
+
+export function validateDefinition(d: InstanceDefinition): string[] {
+  const errs: string[] = [];
+  const w = d.rubric.reduce((s, c) => s + c.weight, 0);
+  if (!d.rubric.length) errs.push('Add at least one scoring criterion.');
+  if (w !== 100) errs.push(`Scoring weights must add up to 100% (now ${w}%).`);
+  if (!d.form.length) errs.push('Add at least one form question.');
+  if (!d.stages.length) errs.push('Add at least one stage.');
+  for (const s of d.stages) if (s.starts > s.ends) errs.push(`Stage "${s.label}" ends before it starts.`);
+  if (d.team.min < 1 || d.team.max < d.team.min) errs.push('Team size is not valid.');
+  if (d.reviewersPerEntry < 1) errs.push('Each entry needs at least one evaluator.');
+  const keys = new Set<string>();
+  for (const f of d.form) { if (keys.has(f.key)) errs.push(`Two questions share the key "${f.key}".`); keys.add(f.key); }
+  return errs;
+}
+
+export const pula = (n: number | null | undefined) => n == null ? '–' : `P${Math.round(n).toLocaleString('en-US')}`;
+export const prizePool = (d: InstanceDefinition) => d.prizes.reduce((s, p) => s + p.amount, 0);
+
+const OPEN_KEYS = ['apply', 'register', 'build', 'submit'];
+export function acceptingEntries(def: InstanceDefinition, status: string, now = new Date()) {
+  if (status !== 'live') return false;
+  const day = now.toISOString().slice(0, 10);
+  return def.stages.some((s) => OPEN_KEYS.includes(s.key) && s.starts <= day && day <= s.ends);
+}
+

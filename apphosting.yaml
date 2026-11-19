@@ -1,23 +1,21 @@
+# Firebase App Hosting. Create the two secrets first:
+#   firebase apphosting:secrets:set letsema-database-url   (a PostgreSQL URL, e.g. from Neon)
+#   firebase apphosting:secrets:set letsema-session-secret (any long random string)
 runConfig:
-  # Keep one server warm during judging so the first visit is fast. Set back to 0 afterwards to save cost.
   minInstances: 1
-  maxInstances: 2
-  concurrency: 80
+  maxInstances: 4
   cpu: 1
-  memoryMiB: 512
-
+  memoryMiB: 1024
+scripts:
+  # Create tables, add demo data only if the database is empty, then build.
+  buildCommand: npm run db:push && npm run db:seed:if-empty && npm run build
 env:
   - variable: DATABASE_URL
-    secret: DATABASE_URL
-  - variable: DIRECT_URL
-    secret: DIRECT_URL
-  - variable: AUTH_SECRET
-    secret: AUTH_SECRET
-  - variable: JWT_SECRET
-    secret: JWT_SECRET
-  - variable: AUTH_TRUST_HOST
-    value: "true"
-  - variable: NEXTAUTH_URL
-    value: "https://ceda-portal--neon-bw-3x0x.us-east4.hosted.app"
-  - variable: NEXT_PUBLIC_SHOW_DEMO_LOGINS
-    value: "true"
+    secret: letsema-database-url
+    availability: [BUILD, RUNTIME]
+  - variable: SESSION_SECRET
+    secret: letsema-session-secret
+    availability: [BUILD, RUNTIME]   # the seed signs award codes with it
+  - variable: DEMO_MODE
+    value: "1"
+    availability: [BUILD, RUNTIME]

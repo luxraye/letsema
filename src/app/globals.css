@@ -1,68 +1,46 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-@layer base {
-  :root {
-    --background: #ffffff;
-    --foreground: #0a0a0a;
-    --card: #ffffff;
-    --card-foreground: #0a0a0a;
-    --popover: #ffffff;
-    --popover-foreground: #0a0a0a;
-    --primary: #3a2a24;
-    --primary-foreground: #ffffff;
-    --secondary: #faf6f2;
-    --secondary-foreground: #3a2a24;
-    --muted: #faf6f2;
-    --muted-foreground: #6b7280;
-    --accent: #faf6f2;
-    --accent-foreground: #3a2a24;
-    --destructive: #ef4444;
-    --destructive-foreground: #ffffff;
-    --border: #e5e7eb;
-    --input: #e5e7eb;
-    --ring: #d94914;
-    --radius: 0.5rem;
-
-    --chart-1: #3a2a24;
-    --chart-2: #d94914;
-    --chart-3: #2f9e57;
-    --chart-4: #f8a018;
-    --chart-5: #a02010;
-
-    --sidebar: #3a2a24;
-    --sidebar-foreground: #ffffff;
-    --sidebar-primary: #d94914;
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #4a3a32;
-    --sidebar-accent-foreground: #ffffff;
-    --sidebar-border: #4a3a32;
-    --sidebar-ring: #d94914;
-  }
-
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
+@theme {
+  --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #3a2a24;
+  --color-bark: #604038;
+  --color-brand: #d94914;
+  --color-brand-dark: #b23a0e;
+  --color-amber: #f8a018;
+  --color-sun: #f8c808;
+  --color-copper: #b4521f;
+  --color-sand: #faf6f2;
+  --color-cream: #fffaf3;
+  --color-line: #ece3d8;
+  --color-muted: #6f5f57;
+  --radius-card: 1.25rem;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+:root { --brand: var(--color-brand); --accent: var(--color-amber); --radius: 1.25rem; }
+html { scroll-behavior: smooth; }
+body { background: #fff; font-weight: 400; color: var(--color-ink); -webkit-font-smoothing: antialiased; }
+html.large-text { font-size: 112.5%; }
+html.high-contrast { --color-muted: #2a1d18; --color-line: #2a1d18; }
+html.high-contrast body { background: #fff; font-weight: 400; }
 
-  .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-}
+@utility card { @apply rounded-[var(--radius)] border border-line bg-white shadow-[0_1px_2px_rgba(42,29,24,.04)]; }
+@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50; }
+@utility btn-primary { @apply btn bg-[var(--brand)] text-white shadow-sm hover:brightness-95; }
+@utility btn-ghost { @apply btn border border-line bg-white text-ink hover:bg-sand; }
+@utility btn-dark { @apply btn border border-white/15 bg-white/10 text-white hover:bg-white/20; }
+@utility btn-ink { @apply btn bg-ink text-white hover:bg-ink/90; }
+@utility field { @apply w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm outline-none transition placeholder:text-muted/60 focus:border-[var(--brand)] focus:ring-4 focus:ring-[var(--brand)]/10; }
+@utility label { @apply mb-1.5 block text-sm font-semibold text-ink; }
+@utility eyebrow { @apply inline-flex items-center gap-1.5 rounded-full bg-sand px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-bark; }
+@utility chip { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold; }
+@utility mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 
-@supports (padding: max(0px)) {
-  .safe-bottom {
-    padding-bottom: max(0px, env(safe-area-inset-bottom));
-  }
-}
+:focus-visible { outline: 3px solid var(--color-amber); outline-offset: 2px; }
+
+@keyframes orbit { to { transform: rotate(360deg); } }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise .6s ease both; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* Headings follow the CEDA look: bold, not black. */
+h1, h2, h3 { letter-spacing: -0.01em; }

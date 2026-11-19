@@ -1,40 +1,43 @@
-import Link from "next/link";
-import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
-import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
-import { NotificationBell } from "@/components/layout/notification-bell";
-import { MobileSignOut } from "@/components/layout/user-menu";
-import { getSessionUser } from "@/lib/session";
-import { roleLabels } from "@/lib/labels";
-import { LogoMark } from "@/components/brand/logo";
-
+import Link from 'next/link';
+import { and, eq, isNull, sql } from 'drizzle-orm';
+import { Bell } from 'lucide-react';
+import { db, schema } from '@/db';
+import { requireUser } from '@/lib/session';
+import { navFor } from '@/lib/nav';
+import { ROLE_LABEL } from '@/lib/rbac';
+import { Sidebar } from '@/components/sidebar';
+import { Live } from '@/components/live';
+import { Avatar } from '@/components/ui';
+import { RoleSwitcher } from '@/components/role-switcher';
+import { demoMode } from '@/lib/notify';
+import { A11yMenu } from '@/components/a11y';
+import { ChatWidget } from '@/components/chat-widget';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const user = await getSessionUser();
-
+  const me = await requireUser();
+  const [unread] = await db.select({ n: sql<number>`count(*)::int` }).from(schema.notifications).where(and(eq(schema.notifications.userId, me.id), isNull(schema.notifications.readAt)));
+  const badges: Record<string, number> = {};
+  if (me.role === 'evaluator') { const [q] = await db.select({ n: sql<number>`count(*)::int` }).from(schema.evaluations).where(and(eq(schema.evaluations.evaluatorId, me.id), isNull(schema.evaluations.submittedAt))); badges['/dashboard/review'] = q.n; }
+  if (me.role === 'consultant' || me.role === 'admin' || me.role === 'superadmin') { const [w] = await db.select({ n: sql<number>`count(*)::int` }).from(schema.chats).where(eq(schema.chats.status, 'waiting')); badges['/dashboard/chat'] = w.n; }
   return (
-    <div className="flex min-h-screen">
-      <div className="sticky top-0 hidden h-screen md:block print:hidden">
-        <DashboardSidebar />
-      </div>
-      <div className="flex min-w-0 flex-1 flex-col bg-ceda-sand">
-        <header className="sticky top-0 z-30 flex print:hidden h-14 items-center justify-between border-b border-border bg-white/90 px-4 backdrop-blur sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 md:hidden">
-            <LogoMark className="h-5 w-5" />
-            <span className="text-sm font-bold text-ceda-ink">CEDA Innovation</span>
-          </Link>
-          <p className="hidden text-sm text-muted-foreground md:block">
-            {user?.organizationName && user.role === "INNOVATOR" ? user.organizationName : roleLabels[user?.role ?? ""]}
-          </p>
-          <div className="flex items-center gap-2">
-            <NotificationBell />
-            <MobileSignOut />
+    <div className="min-h-dvh bg-sand">
+      <Live />
+      <Sidebar items={navFor(me.role)} badges={badges} user={{ name: me.name, email: me.email, role: ROLE_LABEL[me.role] }} />
+      <div className="lg:pl-64">
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-line bg-white px-4 pl-16 lg:pl-8">
+          <div className="min-w-0 truncate text-[15px] text-muted">{ROLE_LABEL[me.role]}</div>
+          <div className="ml-auto flex items-center gap-1">
+            {demoMode() && <RoleSwitcher current={me.email} />}
+            <A11yMenu />
+            <Link href="/dashboard/notifications" className="relative grid size-9 place-items-center rounded-lg text-muted hover:bg-sand" aria-label={`Notifications, ${unread.n} unread`}>
+              <Bell size={18} />{unread.n > 0 && <span className="absolute right-1 top-1 grid min-w-4 place-items-center rounded-full bg-[var(--brand)] px-1 text-[10px] font-bold text-white">{unread.n}</span>}
+            </Link>
+            <Link href="/dashboard/profile" aria-label="Profile" className="ml-1"><Avatar name={me.name} size={32} /></Link>
           </div>
         </header>
-        <main className="flex-1 pb-20 md:pb-0 print:pb-0">
-          <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">{children}</div>
-        </main>
+        <main id="main" className="px-4 py-8 sm:px-6 lg:px-8 [&_h1]:!text-[1.75rem]">{children}</main>
       </div>
-      <MobileBottomNav />
+      {me.role === 'innovator' && <ChatWidget signedIn />}
     </div>
   );
 }
