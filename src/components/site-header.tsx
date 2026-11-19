@@ -1,36 +1,13 @@
 import Link from 'next/link';
-import { ChevronDown, Trophy, Sparkles, BookOpen, Handshake, ClipboardCheck, Search, Gauge, BadgeCheck, MessagesSquare, HelpCircle, Map, ShieldCheck, Lock, Building2, Radio, Scale } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import { MENUS } from '@/lib/site-map';
+import { SiteSearch } from './site-search';
 import { Logo } from './logo';
 import { A11yMenu } from './a11y';
 import { LangToggle } from './lang-toggle';
 import { currentUser } from '@/lib/session';
 import { t, getLang } from '@/lib/i18n';
 import { MobileNav } from './mobile-nav';
-
-export const MENUS = [
-  { label: 'Compete', icon: Trophy, items: [
-    { href: '/instances', title: 'Open competitions', text: 'Calls, hackathons and accelerators you can enter now', icon: Trophy },
-    { href: '/eligibility', title: 'Am I eligible?', text: 'A 30-second check before you start', icon: ClipboardCheck },
-    { href: '/track', title: 'Track an application', text: 'Follow any reference, get free alerts', icon: Search },
-  ] },
-  { label: 'Showcase', icon: Sparkles, items: [
-    { href: '/funded', title: 'Funded innovators', text: 'Ideas CEDA has backed, and what they are building', icon: Sparkles },
-    { href: '/verify', title: 'Verify an award', text: 'Check a certificate or receipt is real', icon: BadgeCheck },
-    { href: '/community', title: 'Community', text: 'Ask other innovators, find a co-founder', icon: MessagesSquare },
-  ] },
-  { label: 'Learn', icon: BookOpen, items: [
-    { href: '/how-it-works', title: 'How it works', text: 'Every step from idea to funded business', icon: Map },
-    { href: '/judges', title: 'How to judge this portal', text: 'Each scoring criterion, one click away', icon: Scale },
-    { href: '/help', title: 'Help and FAQs', text: 'Answers, regulators, support and turnaround times', icon: HelpCircle },
-    { href: '/status', title: 'Status and hosting', text: 'Live speed, uptime and where data lives', icon: Gauge },
-    { href: '/privacy', title: 'Privacy', text: 'Your rights under the Data Protection Act 2024', icon: Lock },
-  ] },
-  { label: 'Partners', icon: Handshake, items: [
-    { href: '/spaces/ceda', title: 'CEDA', text: 'CEDA’s own calls and challenges', icon: ShieldCheck },
-    { href: '/spaces/bdih', title: 'BDIH', text: 'Botswana Digital & Innovation Hub (demo partner space)', icon: Building2 },
-    { href: '/spaces/btc', title: 'BTC', text: 'Demo partner space for connectivity, 5G and IoT', icon: Radio },
-  ] },
-];
 
 export async function SiteHeader() {
   const me = await currentUser();
@@ -44,7 +21,9 @@ export async function SiteHeader() {
           <div className="flex shrink-0 items-center gap-3">
             <LangToggle lang={lang} />
             <span className="hidden text-white/20 sm:inline">|</span>
-            <Link href="/help" className="hidden text-sand hover:text-white sm:inline">Live chat Mon–Fri 09:00–16:00</Link>
+            <Link href="/help" className="hidden text-sand hover:text-white md:inline">Live chat Mon–Fri 09:00–16:00</Link>
+            <span className="hidden text-white/20 sm:inline">|</span>
+            <Link href="/dial" className="hidden text-sand hover:text-white sm:inline">No data? Dial *161#</Link>
           </div>
         </div>
       </div>
@@ -68,6 +47,7 @@ export async function SiteHeader() {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-2">
+          <SiteSearch />
           <Link href="/judges" className="hidden items-center gap-2 rounded-full border border-amber/40 bg-gradient-to-r from-amber/20 to-[var(--brand)]/20 px-3.5 py-1.5 text-xs font-bold text-amber-200 shadow-sm transition hover:bg-amber/30 hover:text-white sm:flex">
             <span className="relative flex size-2"><span className="absolute inline-flex size-full animate-ping rounded-full bg-amber opacity-75" /><span className="relative inline-flex size-2 rounded-full bg-amber" /></span>
             {tr('5-Min Judges’ Tour')}

@@ -1,34 +1,58 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, CheckCircle2, FileText, Radar, ShieldCheck, Trophy, Scale, LifeBuoy, Hammer, Lock, Compass } from 'lucide-react';
-import { publicStats, liveInstances } from '@/lib/queries';
+import { headers } from 'next/headers';
+import QRCode from 'qrcode';
+import { and, desc, eq, ne } from 'drizzle-orm';
+import { ArrowRight, CheckCircle2, FilePen, ShieldCheck, Trophy, Compass, ChevronDown, Clock, Phone } from 'lucide-react';
+import { db, schema } from '@/db';
+import { publicStats, liveInstances, showcase } from '@/lib/queries';
 import { currentStage, prizePool, pula } from '@/lib/instances';
-import { StageTrack, Info } from '@/components/ui';
-import { InstanceCard } from '@/components/instance-card';
+import { STATUS } from '@/lib/format';
+import { Info } from '@/components/ui';
 import { t } from '@/lib/i18n';
+import { SystemMap } from '@/components/home/system-map';
+import { StudioPreview } from '@/components/home/studio-preview';
+import { AudienceTabs } from '@/components/home/audience-tabs';
+import { PhonePreview } from '@/components/home/phone-preview';
 
 export const dynamic = 'force-dynamic';
 
-const BRANCHES = [
-  { label: 'Compete', text: 'Find a call, check you qualify, apply', href: '/instances', icon: Trophy, angle: -90, tone: '#f4a62a' },
-  { label: 'Build', text: 'Autosaved forms, team, files checked on upload', href: '/how-it-works#apply', icon: Hammer, angle: -30, tone: '#d94914' },
-  { label: 'Judge', text: 'Conflict checks, blind scoring, calibration', href: '/how-it-works#judge', icon: Scale, angle: 30, tone: '#2f9e75' },
-  { label: 'Award', text: 'Panel vote, certificate anyone can verify', href: '/funded', icon: CheckCircle2, angle: 90, tone: '#c0262d' },
-  { label: 'Help', text: 'Live chat, FAQs, regulators, support times', href: '/help', icon: LifeBuoy, angle: 150, tone: '#e0719b' },
-  { label: 'Trust', text: 'Sealed rules, audit trail, privacy, status', href: '/status', icon: Lock, angle: 210, tone: '#3a8fd1' },
+const STEPS = [
+  { n: '01', h: 'Check', p: 'See if you qualify in 30 seconds, before you write a word.', icon: CheckCircle2, tile: 'border-emerald-200 bg-emerald-50 text-emerald-600', href: '/eligibility', cta: 'Check My Eligibility',
+    more: ['Open to Botswana citizens; youth calls are for ages 18 to 35.', 'Companies need at least 51% citizen ownership.', 'You get an answer straight away, without creating an account.'], info: 'The checker uses the same rules as the competition, so a yes here means you can enter.' },
+  { n: '02', h: 'Apply', p: 'Submit your idea, team and documents. Your work saves as you type.', icon: FilePen, tile: 'border-amber-200 bg-amber-50 text-amber-600', href: '/instances', cta: 'Browse Open Calls',
+    more: ['Four short steps, in plain words, on any phone.', 'Files are checked on upload, and you are warned if one looks like it holds an ID number by mistake.', 'On submit you get a sealed receipt and a reference like CEDA-26-0101.'], info: 'If evaluators ask for changes, you resubmit in the same place and they see exactly what you changed.' },
+  { n: '03', h: 'Track', p: 'Follow your application live at every step with your reference.', icon: Compass, tile: 'border-orange-200 bg-orange-50 text-[var(--brand)]', href: '/track', cta: 'Track My Progress',
+    more: ['A timeline shows where your application is now.', 'Free email or SMS alerts each time it moves.', 'No data? Dial *161# from any phone.'], info: 'Anyone with your reference can follow it, but never sees your private details.' },
 ];
 
+const SECTOR_TILES = [
+  ['Digital & Technology', 'Software, fintech, hardware prototypes and telecoms', '/photos/soldering.webp'],
+  ['Manufacturing & Textiles', 'Clothing, light manufacturing and adding value locally', '/photos/tailor.webp'],
+  ['Creative Arts & Crafts', 'Basketry, jewellery, digital media and heritage', '/photos/basket-weaver.webp'],
+  ['Eco-Tourism & Conservation', 'Lodges, guided trips and protecting wildlife', '/photos/mokoro.webp'],
+] as const;
+
+const shortDate = (d: string) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'Africa/Gaborone' });
+const STEP_OF: Record<string, number> = { submitted: 1, screening: 1, returned: 2, in_review: 2, shortlisted: 3, declined: 4, awarded: 5 };
+
+async function demoInnovator() {
+  const [u] = await db.select({ id: schema.users.id, name: schema.users.name }).from(schema.users).where(eq(schema.users.email, 'innovator@demo.ceda.bw'));
+  if (!u) return { name: 'Naledi', ideas: [] };
+  const rows = await db.select({ e: schema.entries, instance: schema.instances.name }).from(schema.entries).innerJoin(schema.instances, eq(schema.instances.id, schema.entries.instanceId))
+    .where(and(eq(schema.entries.innovatorId, u.id), ne(schema.entries.status, 'draft'))).orderBy(desc(schema.entries.updatedAt));
+  return { name: u.name.split(' ')[0], ideas: rows.map(({ e, instance }) => ({ title: e.title, instance, status: e.status, label: STATUS[e.status]?.label ?? e.status, step: STEP_OF[e.status] ?? 1 })) };
+}
+
 export default async function Home() {
-  const [stats, instances, tr] = await Promise.all([publicStats(), liveInstances(), t()]);
+  const [stats, instances, tr, awards, demo, h] = await Promise.all([publicStats(), liveInstances(), t(), showcase(), demoInnovator(), headers()]);
+  const origin = `${h.get('x-forwarded-proto') ?? 'https'}://${h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3000'}`;
+  const qr = await QRCode.toDataURL(origin, { margin: 1, width: 220, color: { dark: '#2a1d18' } });
   const featured = instances.find((x) => x.i.featured) ?? instances[0];
   const stage = featured ? currentStage(featured.i.definition) : null;
-  const pipe = Object.fromEntries(stats.pipeline.map((p) => [p.status, p.n]));
-  const flow = [
-    ['Submitted', (pipe.submitted ?? 0) + (pipe.screening ?? 0)],
-    ['With evaluators', (pipe.in_review ?? 0) + (pipe.returned ?? 0)],
-    ['Shortlisted', pipe.shortlisted ?? 0],
-    ['Funded', pipe.awarded ?? 0],
-  ] as const;
+  const stages = featured?.i.definition.stages ?? [];
+  const from = Math.max(0, Math.min((stage?.index ?? 0) - 1, stages.length - 4));
+  const phases = stages.map((s, n) => ({ s, n })).slice(from, from + 4);
   return (
     <>
       {/* Hero */}
@@ -83,125 +107,146 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Platform map */}
-      <section className="bg-bark py-16 text-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <span className="rounded-full bg-amber/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber">The whole platform on one screen</span>
-            <h2 className="mt-4 text-3xl font-bold sm:text-4xl">One engine, six ways in</h2>
-            <p className="mx-auto mt-2 max-w-2xl text-white/70">Every competition runs on the same engine. Pick a branch to see that part of the journey.</p>
+      {/* Interactive system map */}
+      <section className="bg-ink py-16 text-white">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 text-center">
+            <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber">Interactive system map</span>
+            <h2 className="mt-4 text-3xl font-bold sm:text-[2.5rem]">Explore the Entire Platform</h2>
+            <p className="mx-auto mt-2 max-w-2xl text-white/70">Touch or click any branch to see its sections and jump straight there.</p>
           </div>
-          <div className="relative mx-auto mt-10 hidden aspect-square max-w-[620px] md:block">
-            <div className="absolute inset-[12%] rounded-full border border-dashed border-white/15" style={{ animation: 'orbit 90s linear infinite' }} />
-            <div className="absolute inset-[30%] rounded-full border border-white/10" />
-            <Link href="/how-it-works" className="absolute left-1/2 top-1/2 grid size-40 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-gradient-to-br from-brand to-amber text-center shadow-[0_0_80px_rgba(217,73,20,.55)] transition hover:scale-105">
-              <span><Radar className="mx-auto mb-1" /><span className="block text-sm font-bold uppercase leading-tight">CEDA idea<br />engine</span></span>
-            </Link>
-            {BRANCHES.map((b) => {
-              const r = 40; const x = 50 + r * Math.cos((b.angle * Math.PI) / 180); const y = 50 + r * Math.sin((b.angle * Math.PI) / 180);
-              return (
-                <Link key={b.label} href={b.href} className="group absolute w-40 -translate-x-1/2 -translate-y-1/2 rounded-2xl border bg-ink/80 p-3 text-center backdrop-blur transition hover:-translate-y-[54%] hover:bg-ink" style={{ left: `${x}%`, top: `${y}%`, borderColor: `${b.tone}66`, boxShadow: `0 0 30px ${b.tone}22` }}>
-                  <b.icon className="mx-auto" size={22} style={{ color: b.tone }} />
-                  <div className="mt-1 font-bold">{b.label}</div>
-                  <div className="text-[11px] leading-snug text-white/60">{b.text}</div>
-                </Link>
-              );
-            })}
-          </div>
-          <div className="mt-8 grid gap-3 sm:grid-cols-2 md:hidden">
-            {BRANCHES.map((b) => <Link key={b.label} href={b.href} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-ink/60 p-4"><b.icon size={22} style={{ color: b.tone }} /><span><b>{b.label}</b><span className="block text-xs text-white/60">{b.text}</span></span></Link>)}
-          </div>
-          <div className="mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Live pipeline">
-            {flow.map(([l, n], i) => (
-              <div key={l} className="relative rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
-                <div className="text-3xl font-bold text-amber">{n}</div><div className="text-xs text-white/70">{l}</div>
-                {i < flow.length - 1 && <ArrowRight size={16} className="absolute -right-3 top-1/2 hidden -translate-y-1/2 text-white/30 sm:block" />}
-              </div>
-            ))}
-          </div>
-          <p className="mt-3 text-center text-xs text-white/50">Live pipeline across all public competitions. Names are never shown.</p>
+          <SystemMap />
         </div>
       </section>
 
       {/* How it works */}
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center"><span className="eyebrow">Three simple steps</span><h2 className="mt-3 text-3xl font-bold sm:text-4xl">How it works</h2><p className="mt-2 text-muted">From your first idea to a funded company: clear steps, plain words, no surprises.</p></div>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {[
-              ['01', 'Check', 'See if you qualify in 30 seconds, before you write a word.', '/eligibility', 'Check eligibility', CheckCircle2],
-              ['02', 'Apply', 'Answer plain questions. Your work saves as you type, even offline.', '/instances', 'Browse competitions', FileText],
-              ['03', 'Track', 'Follow your reference live and get free email or SMS alerts.', '/track', 'Track an application', Radar],
-            ].map(([n, h, p, href, cta, Icon]) => {
-              const I = Icon as typeof CheckCircle2;
-              return (
-                <div key={n as string} className="card flex flex-col p-6">
-                  <div className="flex items-center justify-between"><span className="mono text-2xl font-bold text-muted">{n as string}</span><span className="grid size-10 place-items-center rounded-xl bg-[var(--brand)]/10 text-[var(--brand)]"><I size={20} /></span></div>
-                  <h3 className="mt-4 text-xl font-bold">{h as string}</h3><p className="mt-1 flex-1 text-muted">{p as string}</p>
-                  <Link href={href as string} className="mt-5 inline-flex items-center gap-1 text-sm font-bold text-[var(--brand)]">{cta as string} <ArrowRight size={15} /></Link>
-                </div>
-              );
-            })}
+          <div className="text-center"><span className="rounded-full bg-sand px-3 py-1 text-xs font-bold uppercase tracking-wider">Simple 3-step process</span><h2 className="mt-4 text-3xl font-bold sm:text-[2.5rem]">How It Works</h2><p className="mx-auto mt-2 max-w-2xl text-muted">From your first idea to a funded company: clear steps, plain words, and no hidden surprises.</p></div>
+          <div className="mt-10 grid items-start gap-5 md:grid-cols-3">
+            {STEPS.map((x) => (
+              <div key={x.n} className="card flex flex-col p-7">
+                <div className="flex items-center justify-between"><span className="mono text-2xl font-bold">{x.n}</span><span className={`grid size-11 place-items-center rounded-xl border ${x.tile}`}><x.icon size={20} /></span></div>
+                <h3 className="mt-5 text-xl font-bold">{x.h}</h3><p className="mt-1 text-[15px]">{x.p}</p>
+                <details className="group mt-5 border-t border-line pt-4" open={x.n === '01'}>
+                  <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-bold">What happens here?<ChevronDown size={16} className="transition group-open:rotate-180" /></summary>
+                  <ul className="mt-3 space-y-2 pl-3 text-sm">{x.more.map((m) => <li key={m}>{m}</li>)}</ul>
+                </details>
+                <div className="relative mt-5 flex items-center justify-between border-t border-line pt-4"><Link href={x.href} className="inline-flex items-center gap-1 text-sm font-bold hover:text-[var(--brand)]">{x.cta} <ArrowRight size={15} /></Link><Info>{x.info}</Info></div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Featured */}
       {featured && (
-        <section className="bg-sand/70 py-16">
+        <section className="border-t border-line py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="card overflow-hidden">
-              <div className="grid lg:grid-cols-[1.4fr_1fr]">
-                <div className="p-6 sm:p-8">
-                  <div className="flex flex-wrap gap-2"><span className="chip bg-[var(--brand)] text-white">Featured</span><span className="chip bg-emerald-100 text-emerald-800"><ShieldCheck size={13} /> Rules sealed</span></div>
-                  <h2 className="mt-4 text-3xl font-bold">{featured.i.name}</h2>
-                  <p className="mt-2 text-muted">{featured.i.description}</p>
-                  <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm"><span><b>{pula(prizePool(featured.i.definition))}</b> in prizes</span><span><b>{featured.i.definition.stages.length}</b> stages</span><span><b>{featured.entries}</b> entries so far</span></div>
-                  <div className="mt-6 flex flex-wrap gap-3"><Link href={`/i/${featured.i.slug}`} className="btn-primary">View and apply <ArrowRight size={16} /></Link><Link href="/instances" className="btn-ghost">All competitions</Link></div>
+            <div className="rounded-3xl border border-line bg-gradient-to-br from-[#fdf3ec] to-white p-6 shadow-sm sm:p-10">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                <div className="max-w-3xl">
+                  <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-[var(--brand)] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">Featured challenge</span><span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-800"><ShieldCheck size={13} /> Rules sealed ✓</span></div>
+                  <h2 className="mt-4 text-3xl font-bold leading-tight sm:text-[2.5rem]">{featured.i.name}</h2>
+                  <p className="mt-3 text-[15px]">{featured.i.description}</p>
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-bold"><span className="inline-flex items-center gap-1"><Trophy size={15} /> {pula(prizePool(featured.i.definition))} total prize pool</span><span className="text-muted">•</span><span>{featured.i.definition.stages.length} stages</span><span className="text-muted">•</span><span>{featured.entries} entries so far</span></div>
                 </div>
-                <div className="relative min-h-56"><Image src={featured.i.photo ?? '/photos/team-coding.webp'} alt="" fill sizes="(min-width:1024px) 40vw, 100vw" className="object-cover" /></div>
+                <div className="flex shrink-0 flex-col gap-3 lg:w-64"><Link href={`/i/${featured.i.slug}`} className="btn-primary !rounded-xl !py-3.5 font-bold">View Challenge & Apply <ArrowRight size={16} /></Link><Link href="/instances" className="btn-ghost !rounded-xl !py-3 text-sm font-bold">Browse All Competitions</Link></div>
               </div>
-              <div className="border-t border-line p-6 sm:p-8">
-                <div className="mb-3 text-sm font-bold">Where we are now{stage?.stage ? `: ${stage.stage.label}` : ''}</div>
-                <StageTrack stages={featured.i.definition.stages.slice(0, 8)} current={stage?.index ?? 0} />
+              <div className="mt-8 rounded-2xl border border-line bg-white p-5">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm font-bold"><span className="inline-flex items-center gap-2"><Clock size={15} className="text-[var(--brand)]" /> Current competition timeline</span>{stage?.stage && <span>Active window: {stage.stage.label}</span>}</div>
+                <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                  {phases.map(({ s, n }) => (
+                    <li key={s.key} className={`rounded-xl border p-3 ${n === stage?.index ? 'border-[var(--brand)] bg-[var(--brand)]/5' : 'border-line'}`}>
+                      <div className="flex items-center justify-between text-[10px] font-bold uppercase">Phase {n + 1}{n === stage?.index && <span className="rounded-full bg-[var(--brand)] px-2 py-0.5 text-[9px] text-white">We are here</span>}</div>
+                      <div className="mt-1 text-sm font-bold">{s.label}</div>
+                      <div className="text-xs text-muted">{shortDate(s.starts)}{s.ends !== s.starts ? ` – ${shortDate(s.ends)}` : ''}</div>
+                    </li>
+                  ))}
+                </ol>
               </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* Open competitions */}
-      <section className="py-16">
+      {/* Instance Studio */}
+      <section className="border-y border-line bg-[#f7f7f8] py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><span className="eyebrow">Enter now</span><h2 className="mt-3 text-3xl font-bold">Open competitions</h2></div><Link href="/instances" className="btn-ghost">See all <ArrowRight size={16} /></Link></div>
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">{instances.slice(0, 6).map((x) => <InstanceCard key={x.i.id} x={x} />)}</div>
+          <div className="mb-10 text-center"><span className="rounded-full bg-sand px-3 py-1 text-xs font-bold uppercase tracking-wider">Instance Studio interactive visual</span><h2 className="mt-4 text-3xl font-bold sm:text-[2.5rem]">See How a Competition is Built</h2><p className="mx-auto mt-2 max-w-2xl">Every challenge on the platform runs on an “Instance”: a competition blueprint with sealed rules anyone can check.</p></div>
+          <StudioPreview />
         </div>
       </section>
 
       {/* Who it's for */}
-      <section className="bg-sand/70 py-16">
-        <div className="mx-auto grid max-w-7xl gap-5 px-4 md:grid-cols-3">
-          {[
-            ['Innovators', 'Apply in plain language, on any phone. See your score sheet before you start, and get written feedback either way.', '/photos/innovator-portrait.webp', '/instances'],
-            ['Evaluators', 'Declare conflicts, score blind against weighted criteria, and see how your marking compares, so no idea is punished for a tough marker.', '/photos/evaluator.webp', '/how-it-works#judge'],
-            ['Partners', 'BDIH, BTC and others run their own branded challenges on CEDA’s engine, with their own evaluators and the same sealed rules.', '/photos/founders-meeting.webp', '/spaces/bdih'],
-          ].map(([h, p, img, href]) => (
-            <Link key={h} href={href} className="card group overflow-hidden">
-              <div className="relative h-48"><Image src={img} alt="" fill sizes="(min-width:768px) 33vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" /></div>
-              <div className="p-5"><h3 className="text-lg font-bold">{h}</h3><p className="mt-1 text-sm text-muted">{p}</p></div>
-            </Link>
-          ))}
+      <section className="py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 text-center"><span className="rounded-full bg-sand px-3 py-1 text-xs font-bold uppercase tracking-wider">Fairness for everyone</span><h2 className="mt-4 text-3xl font-bold sm:text-[2.5rem]">Who It&apos;s For</h2><p className="mx-auto mt-2 max-w-2xl">Judged on the idea, not on who you know. Built to give every founder, evaluator and partner peace of mind.</p></div>
+          <AudienceTabs />
+        </div>
+      </section>
+
+      {/* Mobile first */}
+      <section className="border-t border-line py-16">
+        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+          <span className="rounded-full bg-[var(--brand)]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[var(--brand)]">Mobile first</span>
+          <h2 className="mt-4 text-3xl font-bold sm:text-[2.5rem]">Apply From Any Phone</h2>
+          <p className="mx-auto mb-10 mt-2 max-w-2xl text-muted">Flip the phone to get a QR code for your own smartphone, or <Link href="/dial" className="font-semibold underline">dial *161#</Link> with no data at all.</p>
+          <PhonePreview name={demo.name} ideas={demo.ideas} qr={qr} url={origin} />
+        </div>
+      </section>
+
+      {/* Sectors and recent awards */}
+      <section className="border-t border-line bg-[#f7f7f8] py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="max-w-2xl"><span className="rounded-full bg-sand px-3 py-1 text-xs font-bold uppercase tracking-wider">Priority sectors</span><h2 className="mt-4 text-3xl font-bold sm:text-[2.5rem]">Funded Sectors & Opportunities</h2><p className="mt-2">CEDA backs citizen ventures that diversify the economy, create jobs for young people, and grow exports.</p></div>
+            <Link href="/instances" className="inline-flex items-center gap-1 text-sm font-bold hover:text-[var(--brand)]">View challenges by sector <ArrowRight size={15} /></Link>
+          </div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {SECTOR_TILES.map(([h, p, img]) => (
+              <Link key={h} href="/instances" className="group relative block aspect-[8/7] overflow-hidden rounded-2xl">
+                <Image src={img} alt="" fill sizes="(min-width:1024px) 25vw, 50vw" className="object-cover transition duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/30 to-transparent" />
+                <div className="absolute inset-x-4 bottom-4 text-white"><div className="text-lg font-bold">{h}</div><p className="text-xs text-white/80">{p}</p></div>
+              </Link>
+            ))}
+          </div>
+          {awards.length > 0 && (
+            <div className="mt-12 rounded-3xl border border-line bg-white p-6 sm:p-8">
+              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line pb-5">
+                <div className="flex items-center gap-3"><span className="grid size-11 place-items-center rounded-xl bg-amber/15 text-amber-700"><Trophy size={20} /></span><div><h3 className="text-xl font-bold">Recently Awarded Citizen Startups</h3><p className="text-sm text-muted">Each award has a certificate with a code anyone can verify.</p></div></div>
+                <Link href="/funded" className="inline-flex items-center gap-1 text-sm font-bold hover:text-[var(--brand)]">Explore all funded startups <ArrowRight size={15} /></Link>
+              </div>
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                {awards.slice(0, 3).map(({ e, instance }) => (
+                  <div key={e.id} className="flex min-w-0 flex-col rounded-2xl border border-line p-5">
+                    <div className="flex items-center justify-between gap-2"><span className="truncate rounded-full bg-sand px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">{e.sector ?? 'General'}</span><span className="shrink-0 whitespace-nowrap text-sm font-bold text-emerald-700">{pula(e.awardAmount)} award</span></div>
+                    <h4 className="mt-3 font-bold">{e.title}</h4><div className="text-sm text-muted">{instance}</div>
+                    <p className="mt-2 flex-1 text-sm">{e.summary}</p>
+                    <div className="mt-4 flex items-center justify-between border-t border-line pt-3 text-xs"><Link href={`/certificate/${e.ref}`} className="font-bold hover:text-[var(--brand)]">View certificate</Link><span className="mono text-muted">{e.ref}</span></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
       {/* CTA */}
-      <section className="relative overflow-hidden py-20 text-white">
-        <Image src="/photos/okavango-aerial.webp" alt="" fill sizes="100vw" className="object-cover" />
-        <div className="absolute inset-0 bg-ink/75" />
-        <div className="relative mx-auto max-w-3xl px-4 text-center">
-          <h2 className="text-3xl font-bold sm:text-4xl">Botswana’s next big business could be yours</h2>
-          <p className="mt-3 text-white/80">Create a free account in a minute. No paperwork to print, no queues.</p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3"><Link href="/register" className="btn-primary !px-6 !py-3 text-base">Create free account</Link><Link href="/judges" className="btn-dark !px-6 !py-3 text-base">Judges’ 5-minute tour</Link></div>
+      <section className="bg-[#f7f7f8] pb-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-3xl text-white shadow-2xl">
+            <Image src="/photos/okavango-aerial.webp" alt="" fill sizes="100vw" className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/70 to-ink/20" />
+            <div className="relative max-w-2xl p-8 sm:p-16">
+              <span className="rounded-full border border-amber/50 bg-amber/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber">Start today</span>
+              <h2 className="mt-5 text-3xl font-bold leading-tight sm:text-[2.6rem]">Turn your innovation into a funded commercial enterprise.</h2>
+              <p className="mt-4 text-lg text-white/80">Check your eligibility in 30 seconds, submit your pitch, and follow your application at every step.</p>
+              <div className="mt-7 flex flex-wrap gap-3"><Link href="/instances" className="btn-primary !rounded-lg !px-6 !py-3 font-bold">Browse Open Challenges <ArrowRight size={16} /></Link><Link href="/eligibility" className="btn-dark !rounded-lg !px-6 !py-3 font-bold">Check My Eligibility</Link></div>
+              <div className="mt-8 flex items-start gap-3 border-t border-white/15 pt-5 text-sm text-white/80"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-amber/20 text-amber"><Phone size={15} /></span><p><b className="text-white">No internet data?</b> Dial <Link href="/dial" className="mono rounded bg-amber/20 px-1.5 py-0.5 font-bold text-amber">*161#</Link> from any phone to check your application and open competitions, free of charge.</p></div>
+            </div>
+          </div>
         </div>
       </section>
     </>

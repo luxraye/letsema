@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const PUBLIC = ['/', '/how-it-works', '/judges', '/instances', '/eligibility', '/help', '/status', '/privacy', '/community', '/funded', '/spaces/bdih', '/page/about', '/track', '/verify', '/login', '/register', '/forgot', '/demo-inbox'];
+const PUBLIC = ['/', '/how-it-works', '/judges', '/instances', '/eligibility', '/help', '/status', '/privacy', '/community', '/funded', '/spaces/bdih', '/page/about', '/track', '/verify', '/login', '/register', '/forgot', '/demo-inbox', '/dial'];
 
 async function as(page: Page, who: string) {
   await page.context().clearCookies();

@@ -78,3 +78,28 @@ test('api: entries need a key, instances are public', async ({ request }) => {
   const r = await (await request.get('/api/v1/instances')).json();
   expect(r.data.length).toBeGreaterThan(0);
 });
+
+test('home: search finds a funded idea with the keyboard shortcut', async ({ page }) => {
+  await page.goto('/');
+  await page.keyboard.press('Control+k');
+  await page.getByRole('dialog', { name: 'Search' }).getByLabel('Search').fill('cold');
+  await expect(page.getByRole('dialog')).toContainText('SunCold');
+});
+
+test('home: system map opens a branch and lists its sections', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /^Trust/ }).first().click();
+  await expect(page.getByRole('link', { name: /Audit trail anyone can check/ }).first()).toBeVisible();
+});
+
+test('dial *161#: track an application without data', async ({ page }) => {
+  await page.goto('/dial');
+  for (const k of ['*', '1', '6', '1', '#']) await page.getByRole('button', { name: k, exact: true }).click();
+  await page.getByRole('button', { name: 'Call' }).click();
+  await expect(page.locator('pre')).toContainText('Track my application');
+  await page.getByRole('button', { name: '1', exact: true }).click();
+  await page.getByRole('button', { name: 'Send' }).click();
+  await page.getByLabel('Type with your keyboard').fill('0101');
+  await page.getByRole('button', { name: 'Send' }).click();
+  await expect(page.locator('pre')).toContainText('CEDA-26-0101');
+});

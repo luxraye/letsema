@@ -17,7 +17,7 @@ export default async function Funded() {
       <PageHeader eyebrow="Showcase" title="Ideas CEDA has backed" sub={`${rows.length} funded innovators who agreed to be shown here, ${pula(total)} in awards. Every award links to a code anyone can check.`} />
       {rows.length === 0 ? <Empty title="No awards shown yet" /> : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{rows.map(({ e, instance }) => (
-          <article key={e.id} className="card flex flex-col p-5">
+          <article key={e.id} id={e.ref} className="card flex scroll-mt-24 flex-col p-5">
             <div className="text-xs text-muted">{instance}</div>
             <h2 className="mt-1 text-lg font-bold">{e.title}</h2>
             <div className="mt-1 text-xs text-muted">{[e.sector, e.district].filter(Boolean).join(' · ')}</div>

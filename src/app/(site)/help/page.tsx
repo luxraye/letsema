@@ -27,7 +27,7 @@ export default async function Help() {
         <h2 className="mb-4 text-2xl font-bold">Questions people ask</h2>
         {groups.map((g) => (
           <div key={g} className="mb-6"><h3 className="eyebrow mb-2">{g}</h3>
-            <div className="card divide-y divide-line">{faqs.filter((f) => (f.category ?? 'General') === g).map((f) => <details key={f.id} className="group p-4"><summary className="cursor-pointer list-none font-semibold marker:hidden">{f.title}<span className="float-right text-muted transition group-open:rotate-45">+</span></summary><p className="mt-2 whitespace-pre-line text-sm text-muted">{f.body}</p></details>)}</div>
+            <div className="card divide-y divide-line">{faqs.filter((f) => (f.category ?? 'General') === g).map((f) => <details key={f.id} id={`faq-${f.id}`} className="group scroll-mt-24 p-4"><summary className="cursor-pointer list-none font-semibold marker:hidden">{f.title}<span className="float-right text-muted transition group-open:rotate-45">+</span></summary><p className="mt-2 whitespace-pre-line text-sm text-muted">{f.body}</p></details>)}</div>
           </div>
         ))}
       </section>
