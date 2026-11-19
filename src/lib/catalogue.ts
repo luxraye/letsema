@@ -64,3 +64,5 @@ export function standardDefinition(over: Partial<InstanceDefinition> = {}): Inst
     ...over,
   };
 }
+
+export const FORUM_CATEGORIES = ['Pitching', 'Teams', 'Regulation', 'Funding', 'Technical', 'General'];

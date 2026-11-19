@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ceda
+          POSTGRES_PASSWORD: ceda
+          POSTGRES_DB: ceda
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U ceda" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://ceda:ceda@localhost:5432/ceda
+      SESSION_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
+      DEMO_MODE: '1'
+      CI: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Type check
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm test
+      - name: Database schema and demo data
+        run: npm run db:push && npm run db:seed
+      - name: Build
+        run: npm run build
+      - name: Browser tests
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e -- --trace off

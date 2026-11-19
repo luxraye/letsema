@@ -1,6 +1,7 @@
 'use server';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
 import { and, eq, sql } from 'drizzle-orm';
 import { db, schema } from '@/db';
 import type { InstanceDefinition, TeamMember } from '@/db/schema';
@@ -143,8 +144,13 @@ export async function postMessage(entryId: string, fd: FormData) {
   revalidatePath(`/dashboard/entries/${entryId}`);
 }
 
+/** One cheer per browser per funded idea; the cookie keeps a short list of what this browser cheered. */
 export async function cheer(entryId: string) {
-  await db.update(schema.entries).set({ cheers: sql`${schema.entries.cheers} + 1` }).where(eq(schema.entries.id, entryId));
+  const jar = await cookies();
+  const done = (jar.get('cheered')?.value ?? '').split('.').filter(Boolean);
+  if (done.includes(entryId.slice(0, 8))) return;
+  await db.update(schema.entries).set({ cheers: sql`${schema.entries.cheers} + 1` }).where(and(eq(schema.entries.id, entryId), eq(schema.entries.status, 'awarded'), eq(schema.entries.showcase, true)));
+  jar.set('cheered', [...done, entryId.slice(0, 8)].slice(-60).join('.'), { httpOnly: true, sameSite: 'lax', maxAge: 31536000, path: '/' });
   revalidatePath('/funded');
 }
 
