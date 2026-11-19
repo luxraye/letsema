@@ -5,7 +5,7 @@ import { CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import { db, schema } from '@/db';
 import { requireUser } from '@/lib/session';
 import { StatusBadge } from '@/components/ui';
-import { EntryBody, Thread } from '@/components/entry-body';
+import { EntryBody, Thread, EntryAudit } from '@/components/entry-body';
 import { screen } from '@/app/actions/judging';
 import { postMessage } from '@/app/actions/entries';
 import { Submit } from '@/components/forms';
@@ -50,6 +50,7 @@ export default async function ScreenOne({ params }: { params: Promise<{ id: stri
               <Submit className="btn-primary w-full">Record decision</Submit>
             </form>
           )}
+          <div className="card p-4"><div className="mb-2 font-bold">Tracking (audit log)</div><EntryAudit entryId={id} /></div>
           <div className="card space-y-3 p-4">
             <div className="font-bold">Messages</div>
             <Thread entryId={id} showInternal />

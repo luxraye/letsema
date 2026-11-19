@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { and, eq } from 'drizzle-orm';
 import { db, schema } from '@/db';
 import { requireUser } from '@/lib/session';
-import { EntryBody, Thread } from '@/components/entry-body';
+import { EntryBody, Thread, EntryAudit } from '@/components/entry-body';
 import { StatusBadge, Badge } from '@/components/ui';
 import { calibrate, spread, DISAGREE } from '@/lib/scoring';
 import { castVote, finalise } from '@/app/actions/judging';
@@ -45,6 +45,7 @@ export default async function PanelOne({ params }: { params: Promise<{ id: strin
             <p className="mt-2 text-xs text-muted">Calibrated scores adjust for each evaluator’s overall strictness across every application they scored.</p>
             <ul className="mt-3 space-y-2 text-xs">{evs.filter((x) => x.ev.feedback).map(({ ev }) => <li key={ev.id} className="rounded-lg bg-sand p-2">{ev.feedback}{ev.privateNote && <div className="mt-1 text-muted">Private: {ev.privateNote}</div>}</li>)}</ul>
           </div>
+          <div className="card p-4"><div className="mb-2 font-bold">Tracking (audit log)</div><EntryAudit entryId={id} /></div>
           <div className="card p-4">
             <div className="font-bold">Panel votes ({votes.length} of {panel.length}; {quorum} needed)</div>
             <ul className="mt-2 space-y-1 text-sm">{votes.map(({ v, name }) => <li key={v.userId} className="flex justify-between gap-2"><span>{name}</span><span><Badge tone={v.vote === 'award' ? 'green' : v.vote === 'decline' ? 'red' : 'amber'}>{v.vote}</Badge>{v.amount ? ` ${pula(v.amount)}` : ''}</span></li>)}</ul>

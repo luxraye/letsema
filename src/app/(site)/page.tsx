@@ -61,6 +61,26 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* The four jobs from the CEDA brief */}
+      <section className="border-b border-line bg-white py-14">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="max-w-3xl"><span className="eyebrow">What CEDA asked for</span><h2 className="mt-3 text-3xl font-extrabold">Four jobs, done in one place</h2><p className="mt-2 text-muted">CEDA asked for a platform that takes in submissions, lets evaluators evaluate, keeps communication with innovators secure, and tracks all of it. Here is where each happens.</p></div>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              ['1', 'Take in submissions', 'Every application, file and version lands in one secure repository, sealed with a fingerprint on submit.', '/instances'],
+              ['2', 'Evaluate', 'Screening, then blind scoring by independent evaluators, then a panel vote. Three levels, all in the portal.', '/how-it-works#judge'],
+              ['3', 'Talk to innovators securely', 'A private message thread on every application. Only the applicant and CEDA staff see it, and every message is recorded.', '/how-it-works#talk'],
+              ['4', 'Track everything', 'A live status timeline for each application and a tamper-evident audit log of every action.', '/track'],
+            ].map(([n, h, p, href]) => (
+              <Link key={n} href={href} className="card group p-5 transition hover:border-[var(--brand)]">
+                <span className="grid size-9 place-items-center rounded-full bg-[var(--brand)] font-extrabold text-white">{n}</span>
+                <h3 className="mt-3 font-bold">{h}</h3><p className="mt-1 text-sm text-muted">{p}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Platform map */}
       <section className="bg-bark py-16 text-white">
         <div className="mx-auto max-w-7xl px-4">

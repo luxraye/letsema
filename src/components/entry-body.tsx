@@ -53,3 +53,14 @@ export async function Thread({ entryId, showInternal }: { entryId: string; showI
   if (!vis.length) return <p className="text-sm text-muted">No messages yet.</p>;
   return <ul className="space-y-2">{vis.map(({ m, author, role }) => <li key={m.id} className={`rounded-xl p-3 text-sm ${m.internal ? 'border border-dashed border-amber-300 bg-amber-50' : m.kind === 'revision_request' ? 'bg-orange-50' : 'bg-sand/60'}`}><div className="text-xs text-muted"><b className="text-ink">{author}</b> · {role === 'innovator' ? 'applicant' : 'CEDA'}{m.internal && ' · internal note'}{m.kind === 'revision_request' && ' · changes requested'}</div>{m.body}</li>)}</ul>;
 }
+
+/** Tracking: every recorded action on this application, straight from the hash-chained audit log. */
+export async function EntryAudit({ entryId }: { entryId: string }) {
+  const rows = await db.select().from(schema.audit).where(eq(schema.audit.entryId, entryId)).orderBy(asc(schema.audit.seq));
+  return (
+    <ol className="space-y-2 border-l-2 border-line pl-4 text-sm">
+      {rows.map((r) => <li key={r.seq}><div className="font-semibold">{r.action.replace(/^\w+\./, '').replace(/_/g, ' ')}</div><div className="text-xs text-muted">{r.actorName} · {r.at.toLocaleString('en-GB', { timeZone: 'Africa/Gaborone', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} · <span className="mono">#{r.seq} {r.hash.slice(0, 8)}</span></div></li>)}
+      {!rows.length && <li className="text-muted">Nothing recorded yet.</li>}
+    </ol>
+  );
+}
