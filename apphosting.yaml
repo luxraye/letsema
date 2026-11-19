@@ -1,0 +1,21 @@
+# Firebase App Hosting. Create the two secrets first:
+#   firebase apphosting:secrets:set letsema-database-url   (a PostgreSQL URL, e.g. from Neon)
+#   firebase apphosting:secrets:set letsema-session-secret (any long random string)
+runConfig:
+  minInstances: 1
+  maxInstances: 4
+  cpu: 1
+  memoryMiB: 1024
+scripts:
+  # Create tables, add demo data only if the database is empty, then build.
+  buildCommand: npm run db:push && npm run db:seed:if-empty && npm run build
+env:
+  - variable: DATABASE_URL
+    secret: letsema-database-url
+    availability: [BUILD, RUNTIME]
+  - variable: SESSION_SECRET
+    secret: letsema-session-secret
+    availability: [BUILD, RUNTIME]   # the seed signs award codes with it
+  - variable: DEMO_MODE
+    value: "1"
+    availability: [BUILD, RUNTIME]

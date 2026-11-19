@@ -26,6 +26,7 @@ async function wipe() {
 }
 
 async function main() {
+  if (process.argv.includes('--if-empty') && (await db.$count(schema.users)) > 0) { console.log('Database already has data; leaving it alone.'); process.exit(0); }
   console.log('Seeding…');
   await wipe();
   const hash = await bcrypt.hash(DEMO_PASSWORD, 10);
