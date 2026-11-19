@@ -1,0 +1,9 @@
+{
+  "name": "Letsema · CEDA Innovation Portal",
+  "short_name": "Letsema",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f6f4ee",
+  "theme_color": "#0b6b5c",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

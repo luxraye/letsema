@@ -47,8 +47,8 @@ export const DEFAULT_ROLES: RoleDef[] = [
   },
   {
     key: 'admin', label: 'Administrator', builtIn: true, internal: true,
-    description: 'Runs calls, content, users, settings, privacy and audit.',
-    permissions: PERMISSIONS.map((p) => p.key),
+    description: 'Runs calls, content, users, settings, privacy and audit. Does not score or vote, so management stays separate from judging.',
+    permissions: PERMISSIONS.map((p) => p.key).filter((k) => !['idea.create', 'idea.view.own', 'review.submit', 'idea.decide', 'chat.answer'].includes(k)),
   },
 ];
 
