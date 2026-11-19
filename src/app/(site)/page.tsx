@@ -41,8 +41,8 @@ export default async function Home() {
             <h1 className="mt-5 text-4xl font-bold leading-[1.05] tracking-tight sm:text-[3.6rem]">Your idea. CEDA’s backing.<br /><span className="bg-gradient-to-r from-amber to-[#f8c808] bg-clip-text text-transparent">A fair shot.</span></h1>
             <p className="mt-5 max-w-2xl text-lg text-white/80">Enter CEDA competitions online, see exactly how you’ll be judged, and follow your application at every step.</p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Link href="/instances" className="btn-primary !px-5 !py-3 text-base">{tr('See open competitions')} <ArrowRight size={18} /></Link>
-              <Link href="/eligibility" className="btn-dark !px-5 !py-3 text-base">{tr('Am I eligible?')} (30 seconds)</Link>
+              <Link href="/instances" className="btn-primary !rounded-lg !px-6 !py-3 font-bold">{tr('See Open Competitions')} <ArrowRight size={18} /></Link>
+              <Link href="/eligibility" className="btn-dark !rounded-lg !px-5 !py-3 font-bold">{tr('Am I Eligible?')} (30 seconds)</Link>
               <Link href="/judges" className="inline-flex items-center gap-1.5 self-center px-2 text-xs font-semibold text-amber hover:text-white"><Compass size={15} /> Take the 3-minute judges’ tour <ArrowRight size={14} /></Link>
             </div>
           </div>
