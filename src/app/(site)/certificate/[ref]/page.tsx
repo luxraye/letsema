@@ -23,9 +23,9 @@ export default async function Certificate({ params }: { params: Promise<{ ref: s
       <div className="relative overflow-hidden rounded-3xl border-8 border-double border-amber/60 bg-cream p-10 text-center shadow-xl">
         <Logo />
         <div className="mt-6 text-xs font-bold uppercase tracking-[.3em] text-muted">Certificate of award</div>
-        <h1 className="mt-4 text-3xl font-extrabold sm:text-4xl">{row.u.name}</h1>
+        <h1 className="mt-4 text-3xl font-bold sm:text-4xl">{row.u.name}</h1>
         <p className="mt-3 text-muted">is awarded</p>
-        <div className="mt-2 text-4xl font-extrabold text-[var(--brand)]">{pula(row.e.awardAmount)}</div>
+        <div className="mt-2 text-4xl font-bold text-[var(--brand)]">{pula(row.e.awardAmount)}</div>
         <p className="mx-auto mt-4 max-w-xl">for <b>{row.e.title}</b> in the <b>{row.i.name}</b>.</p>
         <div className="mt-8 grid items-end gap-6 sm:grid-cols-3">
           <div className="text-left text-xs"><div className="text-muted">Date</div><div className="font-semibold">{fmtDate(row.e.decidedAt)}</div><div className="mt-2 text-muted">Reference</div><div className="mono font-semibold">{row.e.ref}</div></div>

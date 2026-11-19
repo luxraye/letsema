@@ -38,7 +38,7 @@ export default async function Passport({ params, searchParams }: { params: Promi
     <div className="space-y-6">
       {sp.submitted && <Notice tone="green"><b>Submitted and sealed.</b> Your reference is <span className="mono font-bold">{e.ref}</span>. We emailed you a receipt. Anyone can track it on the public tracker, and you will get alerts at every step.</Notice>}
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div><div className="text-sm text-muted">{i.name}</div><h1 className="text-3xl font-extrabold">{e.title}</h1><div className="mt-2 flex flex-wrap items-center gap-2"><StatusBadge status={e.status} /><span className="mono text-sm text-muted">{e.ref}</span>{e.version > 0 && <span className="text-sm text-muted">· version {e.version}</span>}</div></div>
+        <div><div className="text-sm text-muted">{i.name}</div><h1 className="text-3xl font-bold">{e.title}</h1><div className="mt-2 flex flex-wrap items-center gap-2"><StatusBadge status={e.status} /><span className="mono text-sm text-muted">{e.ref}</span>{e.version > 0 && <span className="text-sm text-muted">· version {e.version}</span>}</div></div>
         <div className="flex flex-wrap gap-2">
           {(e.status === 'draft' || e.status === 'returned') && <Link href={`/dashboard/entries/${id}/edit`} className="btn-primary"><Pencil size={16} /> {e.status === 'returned' ? 'Update and resubmit' : 'Continue'}</Link>}
           {e.status === 'awarded' && <Link href={`/certificate/${e.ref}`} className="btn-primary"><Award size={16} /> Certificate</Link>}

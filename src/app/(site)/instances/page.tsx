@@ -13,8 +13,8 @@ export default async function Instances({ searchParams }: { searchParams: Promis
   const rows = space ? all.filter((x) => x.space.slug === space) : all;
   const spaces = [...new Map(all.map((x) => [x.space.slug, x.space])).values()];
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12">
-      <PageHeader eyebrow="Calls, hackathons and accelerators" title="Competitions" sub="Each competition runs on its own Instance: published dates, form, score sheet and rules, sealed with a fingerprint so nobody can quietly change them." />
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <PageHeader eyebrow="Programmable and tamper-evident challenges" title="CEDA Innovation Challenges" sub="Take part in national funding calls, software hackathons and sector accelerators. Every competition runs on its own Instance, with published rules sealed by a fingerprint." />
       <div className="mb-6 flex flex-wrap gap-2">
         <a href="/instances" className={`chip border ${!space ? 'border-ink bg-ink text-white' : 'border-line bg-white'}`}>All</a>
         {spaces.map((s) => <a key={s.slug} href={`/instances?space=${s.slug}`} className={`chip border ${space === s.slug ? 'border-ink bg-ink text-white' : 'border-line bg-white'}`}>{s.short}</a>)}

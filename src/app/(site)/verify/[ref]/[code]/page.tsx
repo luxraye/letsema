@@ -17,7 +17,7 @@ export default async function Result({ params }: { params: Promise<{ ref: string
     <div className="mx-auto max-w-xl px-4 py-16">
       <div className={`card p-8 text-center ${ok ? 'border-emerald-300' : 'border-rose-300'}`}>
         {ok ? <BadgeCheck size={56} className="mx-auto text-emerald-600" /> : <XCircle size={56} className="mx-auto text-rose-600" />}
-        <h1 className="mt-3 text-2xl font-extrabold">{ok ? 'Genuine CEDA award' : 'Not verified'}</h1>
+        <h1 className="mt-3 text-2xl font-bold">{ok ? 'Genuine CEDA award' : 'Not verified'}</h1>
         {ok ? (
           <dl className="mt-5 space-y-2 text-left text-sm">
             <div className="flex justify-between gap-4"><dt className="text-muted">Awarded to</dt><dd className="font-semibold">{row.u.erasedAt ? 'Withheld at the holder’s request' : row.u.name}</dd></div>

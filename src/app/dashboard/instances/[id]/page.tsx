@@ -24,7 +24,7 @@ export default async function StudioOne({ params }: { params: Promise<{ id: stri
     <div>
       <Link href="/dashboard/instances" className="text-sm text-muted hover:underline">← Instance Studio</Link>
       <div className="mb-6 mt-2 flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-extrabold">{i.name}</h1><Badge tone={i.status === 'live' ? 'green' : 'gray'}>{i.status}</Badge><span className="text-sm text-muted">version {i.version}</span>
+        <h1 className="text-2xl font-bold">{i.name}</h1><Badge tone={i.status === 'live' ? 'green' : 'gray'}>{i.status}</Badge><span className="text-sm text-muted">version {i.version}</span>
         <div className="ml-auto flex flex-wrap gap-2">
           {i.status !== 'draft' && <Link href={`/i/${i.slug}`} className="btn-ghost" target="_blank">Public page</Link>}
           {i.status === 'draft' && <form action={setInstanceStatus.bind(null, id, 'live')}><Submit className="btn-primary" pending="Publishing…">{problems.length ? 'Fix rules to publish' : 'Publish and seal'}</Submit></form>}

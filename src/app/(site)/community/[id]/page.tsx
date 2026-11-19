@@ -25,7 +25,7 @@ export default async function Thread({ params }: { params: Promise<{ id: string 
     <div className="mx-auto max-w-3xl px-4 py-12">
       <Link href="/community" className="text-sm text-muted hover:underline">← Community</Link>
       <div className="mt-3 text-xs font-bold uppercase tracking-wider text-[var(--brand)]">{row.t.category}</div>
-      <h1 className="mb-5 text-3xl font-extrabold">{row.t.title}</h1>
+      <h1 className="mb-5 text-3xl font-bold">{row.t.title}</h1>
       <div className="card p-5"><Post name={row.author} role={row.role} at={row.t.createdAt} body={row.t.body} /></div>
       <h2 className="mb-3 mt-8 font-bold">{replies.length} {replies.length === 1 ? 'reply' : 'replies'}</h2>
       <div className="card divide-y divide-line">{replies.map(({ r, author, role }) => <div key={r.id} className="p-5"><Post name={author} role={role} at={r.createdAt} body={r.body} /></div>)}</div>

@@ -3,7 +3,7 @@ import { cache } from 'react';
 import { db, schema } from '@/db';
 
 export type Theme = { preset: string; primary: string; accent: string; font: string; radius: number };
-export const DEFAULT_THEME: Theme = { preset: 'ceda', primary: '#d94914', accent: '#f4a62a', font: 'Poppins', radius: 20 };
+export const DEFAULT_THEME: Theme = { preset: 'ceda', primary: '#d94914', accent: '#f8a018', font: 'Poppins', radius: 16 };
 export const PRESETS: Record<string, Theme> = {
   ceda: DEFAULT_THEME,
   kalahari: { preset: 'kalahari', primary: '#9a4a1c', accent: '#e0b15a', font: 'Poppins', radius: 12 },

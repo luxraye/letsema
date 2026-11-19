@@ -60,7 +60,7 @@ export function Editor({ entry, instance, files, revision }: { entry: Entry; ins
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div><div className="text-sm text-muted"><Link href={`/i/${instance.slug}`} className="hover:underline">{instance.name}</Link> · <span className="mono">{entry.ref}</span></div><h1 className="text-3xl font-extrabold">{entry.status === 'returned' ? 'Update and resubmit' : 'Your application'}</h1></div>
+        <div><div className="text-sm text-muted"><Link href={`/i/${instance.slug}`} className="hover:underline">{instance.name}</Link> · <span className="mono">{entry.ref}</span></div><h1 className="text-3xl font-bold">{entry.status === 'returned' ? 'Update and resubmit' : 'Your application'}</h1></div>
         <div className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-sm shadow-sm" aria-live="polite">
           {save === 'saving' && <><Loader2 size={15} className="animate-spin" /> Saving…</>}
           {save === 'saved' && <><Check size={15} className="text-emerald-600" /> {savedAt ? `Saved ${savedAt}` : 'All changes saved'}</>}

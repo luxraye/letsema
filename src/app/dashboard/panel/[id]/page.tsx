@@ -32,7 +32,7 @@ export default async function PanelOne({ params }: { params: Promise<{ id: strin
   return (
     <div>
       <Link href={decider ? '/dashboard/panel' : '/dashboard/pipeline'} className="text-sm text-muted hover:underline">← Back</Link>
-      <div className="mb-6 mt-2 flex flex-wrap items-center gap-3"><h1 className="text-2xl font-extrabold">{e.ref}</h1><StatusBadge status={e.status} />{e.rank && <Badge tone="brand">Rank #{e.rank}</Badge>}</div>
+      <div className="mb-6 mt-2 flex flex-wrap items-center gap-3"><h1 className="text-2xl font-bold">{e.ref}</h1><StatusBadge status={e.status} />{e.rank && <Badge tone="brand">Rank #{e.rank}</Badge>}</div>
       <div className="grid gap-6 lg:grid-cols-[1fr_24rem]">
         <div className="space-y-6">
           <EntryBody entry={e} def={i.definition} blind={false} />

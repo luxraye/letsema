@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, CheckCircle2, FileText, Radar, ShieldCheck, Trophy, Scale, LifeBuoy, Hammer, Lock } from 'lucide-react';
+import { ArrowRight, CheckCircle2, FileText, Radar, ShieldCheck, Trophy, Scale, LifeBuoy, Hammer, Lock, Compass } from 'lucide-react';
 import { publicStats, liveInstances } from '@/lib/queries';
 import { currentStage, prizePool, pula } from '@/lib/instances';
-import { StageTrack } from '@/components/ui';
+import { StageTrack, Info } from '@/components/ui';
 import { InstanceCard } from '@/components/instance-card';
 import { t } from '@/lib/i18n';
 
@@ -35,26 +35,28 @@ export default async function Home() {
       <section className="relative overflow-hidden bg-ink text-white">
         <Image src="/photos/hero-lab.webp" alt="" fill priority sizes="100vw" className="object-cover opacity-30" />
         <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/30" />
-        <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-14 sm:pt-20">
+        <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-16 sm:px-6 sm:pt-24 lg:px-8">
           <div className="rise max-w-3xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-amber/40 bg-amber/10 px-3 py-1 text-xs font-bold text-amber"><span className="size-1.5 rounded-full bg-amber" />Citizen Entrepreneurial Development Agency</span>
-            <h1 className="mt-5 text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">Your idea. CEDA’s backing.<br /><span className="text-amber">A fair shot.</span></h1>
+            <h1 className="mt-5 text-4xl font-bold leading-[1.05] tracking-tight sm:text-[3.6rem]">Your idea. CEDA’s backing.<br /><span className="bg-gradient-to-r from-amber to-[#f8c808] bg-clip-text text-transparent">A fair shot.</span></h1>
             <p className="mt-5 max-w-2xl text-lg text-white/80">Enter CEDA competitions online, see exactly how you’ll be judged, and follow your application at every step.</p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link href="/instances" className="btn-primary !px-5 !py-3 text-base">{tr('See open competitions')} <ArrowRight size={18} /></Link>
-              <Link href="/eligibility" className="btn-dark !px-5 !py-3 text-base">{tr('Am I eligible?')} <span className="text-white/60">(30 seconds)</span></Link>
+              <Link href="/eligibility" className="btn-dark !px-5 !py-3 text-base">{tr('Am I eligible?')} (30 seconds)</Link>
+              <Link href="/judges" className="inline-flex items-center gap-1.5 self-center px-2 text-xs font-semibold text-amber hover:text-white"><Compass size={15} /> Take the 3-minute judges’ tour <ArrowRight size={14} /></Link>
             </div>
           </div>
-          <dl className="mt-12 grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <dl className="mt-12 grid grid-cols-2 gap-4 border-t border-white/10 pt-8 lg:grid-cols-4">
             {[
               ['Open competitions', stats.live, 'Calls, hackathons and accelerators accepting entries'],
               ['Applications submitted', stats.submitted, 'Counted live from the database'],
               ['Districts reached', stats.districts, 'Where applicants are based'],
               ['Awarded so far', pula(stats.awardedSum), `${stats.awarded} funded ideas`],
             ].map(([l, v, h]) => (
-              <div key={l as string} className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur" title={h as string}>
-                <dt className="text-[11px] font-bold uppercase tracking-wider text-white/60">{l}</dt>
-                <dd className="mt-1 text-3xl font-extrabold">{v}</dd>
+              <div key={l as string} className="relative rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
+                <dt className="text-[11px] font-semibold uppercase tracking-wider text-white/70">{l}</dt>
+                <dd className="mt-1 text-2xl font-bold sm:text-3xl">{v}</dd>
+                <div className="absolute bottom-3 right-3"><Info dark>{h}</Info></div>
               </div>
             ))}
           </dl>
@@ -63,8 +65,8 @@ export default async function Home() {
 
       {/* The four jobs from the CEDA brief */}
       <section id="four-jobs" className="scroll-mt-20 border-b border-line bg-white py-14">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="max-w-3xl"><span className="eyebrow">What CEDA asked for</span><h2 className="mt-3 text-3xl font-extrabold">Four jobs, done in one place</h2><p className="mt-2 text-muted">CEDA asked for a platform that takes in submissions, lets evaluators evaluate, keeps communication with innovators secure, and tracks all of it. Here is where each happens.</p></div>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl"><span className="eyebrow">What CEDA asked for</span><h2 className="mt-3 text-3xl font-bold">Four jobs, done in one place</h2><p className="mt-2 text-muted">CEDA asked for a platform that takes in submissions, lets evaluators evaluate, keeps communication with innovators secure, and tracks all of it. Here is where each happens.</p></div>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
               ['1', 'Take in submissions', 'Every application, file and version lands in one secure repository, sealed with a fingerprint on submit.', '/instances'],
@@ -73,7 +75,7 @@ export default async function Home() {
               ['4', 'Track everything', 'A live status timeline for each application and a tamper-evident audit log of every action.', '/track'],
             ].map(([n, h, p, href]) => (
               <Link key={n} href={href} className="card group p-5 transition hover:border-[var(--brand)]">
-                <span className="grid size-9 place-items-center rounded-full bg-[var(--brand)] font-extrabold text-white">{n}</span>
+                <span className="grid size-9 place-items-center rounded-full bg-[var(--brand)] font-bold text-white">{n}</span>
                 <h3 className="mt-3 font-bold">{h}</h3><p className="mt-1 text-sm text-muted">{p}</p>
               </Link>
             ))}
@@ -83,17 +85,17 @@ export default async function Home() {
 
       {/* Platform map */}
       <section className="bg-bark py-16 text-white">
-        <div className="mx-auto max-w-7xl px-4">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <span className="rounded-full bg-amber/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber">The whole platform on one screen</span>
-            <h2 className="mt-4 text-3xl font-extrabold sm:text-4xl">One engine, six ways in</h2>
+            <h2 className="mt-4 text-3xl font-bold sm:text-4xl">One engine, six ways in</h2>
             <p className="mx-auto mt-2 max-w-2xl text-white/70">Every competition runs on the same engine. Pick a branch to see that part of the journey.</p>
           </div>
           <div className="relative mx-auto mt-10 hidden aspect-square max-w-[620px] md:block">
             <div className="absolute inset-[12%] rounded-full border border-dashed border-white/15" style={{ animation: 'orbit 90s linear infinite' }} />
             <div className="absolute inset-[30%] rounded-full border border-white/10" />
             <Link href="/how-it-works" className="absolute left-1/2 top-1/2 grid size-40 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-gradient-to-br from-brand to-amber text-center shadow-[0_0_80px_rgba(217,73,20,.55)] transition hover:scale-105">
-              <span><Radar className="mx-auto mb-1" /><span className="block text-sm font-extrabold uppercase leading-tight">CEDA idea<br />engine</span></span>
+              <span><Radar className="mx-auto mb-1" /><span className="block text-sm font-bold uppercase leading-tight">CEDA idea<br />engine</span></span>
             </Link>
             {BRANCHES.map((b) => {
               const r = 40; const x = 50 + r * Math.cos((b.angle * Math.PI) / 180); const y = 50 + r * Math.sin((b.angle * Math.PI) / 180);
@@ -112,7 +114,7 @@ export default async function Home() {
           <div className="mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Live pipeline">
             {flow.map(([l, n], i) => (
               <div key={l} className="relative rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
-                <div className="text-3xl font-extrabold text-amber">{n}</div><div className="text-xs text-white/70">{l}</div>
+                <div className="text-3xl font-bold text-amber">{n}</div><div className="text-xs text-white/70">{l}</div>
                 {i < flow.length - 1 && <ArrowRight size={16} className="absolute -right-3 top-1/2 hidden -translate-y-1/2 text-white/30 sm:block" />}
               </div>
             ))}
@@ -123,8 +125,8 @@ export default async function Home() {
 
       {/* How it works */}
       <section className="py-16">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="text-center"><span className="eyebrow">Three simple steps</span><h2 className="mt-3 text-3xl font-extrabold sm:text-4xl">How it works</h2><p className="mt-2 text-muted">From your first idea to a funded company: clear steps, plain words, no surprises.</p></div>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center"><span className="eyebrow">Three simple steps</span><h2 className="mt-3 text-3xl font-bold sm:text-4xl">How it works</h2><p className="mt-2 text-muted">From your first idea to a funded company: clear steps, plain words, no surprises.</p></div>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {[
               ['01', 'Check', 'See if you qualify in 30 seconds, before you write a word.', '/eligibility', 'Check eligibility', CheckCircle2],
@@ -147,12 +149,12 @@ export default async function Home() {
       {/* Featured */}
       {featured && (
         <section className="bg-sand/70 py-16">
-          <div className="mx-auto max-w-7xl px-4">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="card overflow-hidden">
               <div className="grid lg:grid-cols-[1.4fr_1fr]">
                 <div className="p-6 sm:p-8">
                   <div className="flex flex-wrap gap-2"><span className="chip bg-[var(--brand)] text-white">Featured</span><span className="chip bg-emerald-100 text-emerald-800"><ShieldCheck size={13} /> Rules sealed</span></div>
-                  <h2 className="mt-4 text-3xl font-extrabold">{featured.i.name}</h2>
+                  <h2 className="mt-4 text-3xl font-bold">{featured.i.name}</h2>
                   <p className="mt-2 text-muted">{featured.i.description}</p>
                   <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm"><span><b>{pula(prizePool(featured.i.definition))}</b> in prizes</span><span><b>{featured.i.definition.stages.length}</b> stages</span><span><b>{featured.entries}</b> entries so far</span></div>
                   <div className="mt-6 flex flex-wrap gap-3"><Link href={`/i/${featured.i.slug}`} className="btn-primary">View and apply <ArrowRight size={16} /></Link><Link href="/instances" className="btn-ghost">All competitions</Link></div>
@@ -170,8 +172,8 @@ export default async function Home() {
 
       {/* Open competitions */}
       <section className="py-16">
-        <div className="mx-auto max-w-7xl px-4">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><span className="eyebrow">Enter now</span><h2 className="mt-3 text-3xl font-extrabold">Open competitions</h2></div><Link href="/instances" className="btn-ghost">See all <ArrowRight size={16} /></Link></div>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4"><div><span className="eyebrow">Enter now</span><h2 className="mt-3 text-3xl font-bold">Open competitions</h2></div><Link href="/instances" className="btn-ghost">See all <ArrowRight size={16} /></Link></div>
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">{instances.slice(0, 6).map((x) => <InstanceCard key={x.i.id} x={x} />)}</div>
         </div>
       </section>
@@ -197,7 +199,7 @@ export default async function Home() {
         <Image src="/photos/okavango-aerial.webp" alt="" fill sizes="100vw" className="object-cover" />
         <div className="absolute inset-0 bg-ink/75" />
         <div className="relative mx-auto max-w-3xl px-4 text-center">
-          <h2 className="text-3xl font-extrabold sm:text-4xl">Botswana’s next big business could be yours</h2>
+          <h2 className="text-3xl font-bold sm:text-4xl">Botswana’s next big business could be yours</h2>
           <p className="mt-3 text-white/80">Create a free account in a minute. No paperwork to print, no queues.</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3"><Link href="/register" className="btn-primary !px-6 !py-3 text-base">Create free account</Link><Link href="/judges" className="btn-dark !px-6 !py-3 text-base">Judges’ 5-minute tour</Link></div>
         </div>

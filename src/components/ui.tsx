@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 import { STATUS } from '@/lib/format';
 
 const TONES: Record<string, string> = {
@@ -19,7 +19,7 @@ export function PageHeader({ eyebrow, title, sub, actions }: { eyebrow?: ReactNo
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0 max-w-3xl">
         {eyebrow && <div className="eyebrow mb-3">{eyebrow}</div>}
-        <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">{title}</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-ink sm:text-[2.6rem] sm:leading-tight">{title}</h1>
         {sub && <p className="mt-2 text-base text-muted">{sub}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
@@ -29,12 +29,14 @@ export function PageHeader({ eyebrow, title, sub, actions }: { eyebrow?: ReactNo
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
   return <div className={`card p-5 ${className}`}>{children}</div>;
 }
-export function Stat({ label, value, hint }: { label: string; value: ReactNode; hint?: string }) {
+const STAT_TONES: Record<string, string> = { amber: 'bg-amber-100 text-amber-700', orange: 'bg-orange-100 text-orange-700', violet: 'bg-violet-100 text-violet-700', red: 'bg-rose-100 text-rose-700', green: 'bg-emerald-100 text-emerald-700', blue: 'bg-sky-100 text-sky-700' };
+export function Stat({ label, value, hint, icon: Icon, tone = 'orange' }: { label: string; value: ReactNode; hint?: string; icon?: ComponentType<{ size?: number }>; tone?: string }) {
   return (
     <div className="card p-4" title={hint}>
-      <div className="text-[11px] font-bold uppercase tracking-wider text-muted">{label}</div>
-      <div className="mt-1 text-2xl font-extrabold text-ink">{value}</div>
-      {hint && <div className="mt-0.5 text-xs text-muted">{hint}</div>}
+      {Icon && <div className={`mb-3 grid size-9 place-items-center rounded-lg ${STAT_TONES[tone] ?? STAT_TONES.orange}`}><Icon size={18} /></div>}
+      <div className="text-2xl font-bold text-ink">{value}</div>
+      <div className="mt-0.5 text-[15px] text-muted">{label}</div>
+      {hint && <div className="mt-0.5 text-xs text-muted/80">{hint}</div>}
     </div>
   );
 }
@@ -60,12 +62,12 @@ export function Notice({ tone = 'amber', children }: { tone?: 'amber' | 'green' 
 export function Bars({ data, max }: { data: { label: string; value: number; hint?: string }[]; max?: number }) {
   const m = max ?? Math.max(1, ...data.map((d) => d.value));
   return (
-    <div className="space-y-2">
+    <div className="space-y-2.5">
       {data.map((d) => (
-        <div key={d.label} className="grid grid-cols-[minmax(0,9rem)_1fr_auto] items-center gap-3 text-sm">
+        <div key={d.label} className="grid grid-cols-[minmax(0,7.5rem)_1fr_auto] items-center gap-3 text-sm">
           <span className="truncate text-muted" title={d.label}>{d.label}</span>
-          <span className="h-2.5 overflow-hidden rounded-full bg-sand"><span className="block h-full rounded-full bg-[var(--brand)]" style={{ width: `${(d.value / m) * 100}%` }} /></span>
-          <span className="w-14 text-right font-semibold tabular-nums">{d.hint ?? d.value}</span>
+          <span className="h-6 overflow-hidden rounded-md bg-sand"><span className="flex h-full min-w-6 items-center rounded-md bg-[var(--brand)] px-2 text-[11px] font-semibold text-white" style={{ width: `${(d.value / m) * 100}%` }}>{d.value}</span></span>
+          <span className="w-14 text-right text-xs font-semibold tabular-nums text-muted">{d.hint ?? ''}</span>
         </div>
       ))}
     </div>
@@ -84,11 +86,11 @@ export function StageTrack({ stages, current }: { stages: { key: string; label: 
     </ol>
   );
 }
-export function Info({ children }: { children: ReactNode }) {
+export function Info({ children, dark = false }: { children: ReactNode; dark?: boolean }) {
   return (
     <details className="group inline-block align-middle">
-      <summary className="inline-grid size-5 cursor-pointer list-none place-items-center rounded-full border border-line text-[11px] font-bold text-muted hover:text-ink" aria-label="What is this?">i</summary>
-      <div className="absolute z-30 mt-2 max-w-xs rounded-xl border border-line bg-white p-3 text-xs font-normal text-ink shadow-lg">{children}</div>
+      <summary className={`inline-grid size-5 cursor-pointer list-none place-items-center rounded-full border text-[11px] font-bold ${dark ? 'border-white/40 text-white/70 hover:text-white' : 'border-line text-muted hover:text-ink'}`} aria-label="What is this?">i</summary>
+      <div className="absolute right-0 z-30 mt-2 w-60 max-w-xs rounded-xl border border-line bg-white p-3 text-xs font-normal normal-case tracking-normal text-ink shadow-lg">{children}</div>
     </details>
   );
 }

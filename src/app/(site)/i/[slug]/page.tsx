@@ -34,9 +34,9 @@ export default async function InstancePage({ params, searchParams }: { params: P
       <section className="relative overflow-hidden bg-ink text-white">
         <Image src={i.photo ?? '/photos/team-coding.webp'} alt="" fill priority sizes="100vw" className="object-cover opacity-35" />
         <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/40" />
-        <div className="relative mx-auto max-w-7xl px-4 py-14">
+        <div className="relative mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
           <Link href={`/spaces/${space.slug}`} className="chip text-white" style={{ background: space.primary }}>{space.name}</Link>
-          <h1 className="mt-4 max-w-4xl text-3xl font-extrabold leading-tight sm:text-5xl">{i.name}</h1>
+          <h1 className="mt-4 max-w-4xl text-3xl font-bold leading-tight sm:text-5xl">{i.name}</h1>
           <p className="mt-3 max-w-2xl text-lg text-white/80">{i.description}</p>
           <div className="mt-6 flex flex-wrap gap-x-8 gap-y-2 text-sm text-white/85">
             <span className="flex items-center gap-2"><Trophy size={16} className="text-amber" />{pula(prizePool(d))} in prizes</span>
@@ -65,7 +65,7 @@ export default async function InstancePage({ params, searchParams }: { params: P
             <div className="card divide-y divide-line">
               {d.rubric.map((c) => (
                 <div key={c.key} className="flex items-start gap-4 p-4">
-                  <div className="grid size-14 shrink-0 place-items-center rounded-xl bg-[var(--brand)]/10 text-lg font-extrabold text-[var(--brand)]">{c.weight}%</div>
+                  <div className="grid size-14 shrink-0 place-items-center rounded-xl bg-[var(--brand)]/10 text-lg font-bold text-[var(--brand)]">{c.weight}%</div>
                   <div><div className="font-semibold">{c.label}</div><div className="text-sm text-muted">{c.guide}</div></div>
                 </div>
               ))}

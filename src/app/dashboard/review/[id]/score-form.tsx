@@ -9,7 +9,7 @@ export function ScoreForm({ action, rubric }: { action: (fd: FormData) => void; 
   const total = Math.round(rubric.reduce((t, c) => t + (s[c.key] / 10) * c.weight, 0) * 10) / 10;
   return (
     <form action={action} className="card space-y-4 p-5">
-      <div className="flex items-end justify-between"><h2 className="text-lg font-bold">Score sheet</h2><div className="text-right"><div className="text-xs text-muted">Weighted total</div><div className="text-3xl font-extrabold">{total}</div></div></div>
+      <div className="flex items-end justify-between"><h2 className="text-lg font-bold">Score sheet</h2><div className="text-right"><div className="text-xs text-muted">Weighted total</div><div className="text-3xl font-bold">{total}</div></div></div>
       {rubric.map((c) => (
         <div key={c.key}>
           <div className="flex justify-between gap-2 text-sm"><label htmlFor={c.key} className="font-semibold">{c.label} <span className="font-normal text-muted">({c.weight}%)</span></label><b>{s[c.key]}/10</b></div>

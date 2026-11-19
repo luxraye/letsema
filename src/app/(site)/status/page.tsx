@@ -41,13 +41,13 @@ export default async function Status() {
         <Stat label="Database size" value={sizes?.size ?? '–'} />
       </div>
 
-      <h2 className="mb-3 text-2xl font-extrabold">How it is built and hosted</h2>
+      <h2 className="mb-3 text-2xl font-bold">How it is built and hosted</h2>
       <div className="mb-10 grid gap-4 md:grid-cols-2 text-sm">
         <div className="card p-5"><h3 className="mb-2 font-bold">Built to be boring to run</h3><ul className="list-disc space-y-1 pl-5 text-muted"><li>One Next.js web app (Node.js) and one PostgreSQL database. No other moving parts.</li><li>Pages are rendered on the server, so phones on slow networks get small pages.</li><li>The app holds no state of its own, so more copies can run side by side behind a load balancer as use grows.</li><li>Runs on any cloud, or on servers in Botswana, from one container image.</li></ul></div>
         <div className="card p-5"><h3 className="mb-2 font-bold">Security</h3><ul className="list-disc space-y-1 pl-5 text-muted"><li>Passwords hashed with bcrypt; accounts lock for 15 minutes after five wrong tries.</li><li>Sessions are random tokens stored only as fingerprints; signing out anywhere ends them everywhere.</li><li>Every page sends strict security headers; uploads are checked by their real file type, not their name.</li><li>Each role sees only what it needs. Evaluators never see an applicant&apos;s name.</li></ul></div>
       </div>
 
-      <h2 className="mb-3 text-2xl font-extrabold">Photo credits</h2>
+      <h2 className="mb-3 text-2xl font-bold">Photo credits</h2>
       <p className="mb-3 text-sm text-muted">Photos are from Unsplash under the Unsplash licence. Thank you to the photographers.</p>
       <ul className="grid gap-1 text-sm sm:grid-cols-2">{photos.map((p) => <li key={p.file}><a className="underline" href={p.url} target="_blank" rel="noopener noreferrer">{p.file}</a></li>)}</ul>
     </div>

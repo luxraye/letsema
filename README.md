@@ -68,6 +68,6 @@ GitHub Actions runs all of them on every push, against a fresh PostgreSQL and a 
 
 ## Honest notes
 
-- All code in this repository was written from 19 November 2026 onwards, and the commit history shows each step. An earlier prototype of ours, in another repository, served only as a list of features to build; no code was copied from it.
+- All code in this repository was written from 19 November 2026 onwards, and the commit history shows each step. An earlier prototype of ours, in another repository, served as a reference for features and, from 19 November, for the visual design. The look (colour tokens, sunrise logo shape, header, cards, dashboard) was matched to it by rewriting the components here, not by copying its files.
 - Photos are from Unsplash under the Unsplash licence; credits are in `public/photos/CREDITS.md` and on `/status`.
 - The privacy notice and regulator list are prototypes for CEDA's own teams to confirm.

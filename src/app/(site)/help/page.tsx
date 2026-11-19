@@ -24,7 +24,7 @@ export default async function Help() {
       <nav className="mb-8 flex flex-wrap gap-2 text-sm">{[['#faq', 'Questions'], ['#regulators', 'Regulators'], ['#documents', 'Documents'], ['#turnaround', 'Turnaround times'], ['#support', 'Report a problem']].map(([h, l]) => <a key={h} href={h} className="chip border border-line bg-white !py-1.5">{l}</a>)}</nav>
 
       <section id="faq" className="mb-12 scroll-mt-24">
-        <h2 className="mb-4 text-2xl font-extrabold">Questions people ask</h2>
+        <h2 className="mb-4 text-2xl font-bold">Questions people ask</h2>
         {groups.map((g) => (
           <div key={g} className="mb-6"><h3 className="eyebrow mb-2">{g}</h3>
             <div className="card divide-y divide-line">{faqs.filter((f) => (f.category ?? 'General') === g).map((f) => <details key={f.id} className="group p-4"><summary className="cursor-pointer list-none font-semibold marker:hidden">{f.title}<span className="float-right text-muted transition group-open:rotate-45">+</span></summary><p className="mt-2 whitespace-pre-line text-sm text-muted">{f.body}</p></details>)}</div>
@@ -33,25 +33,25 @@ export default async function Help() {
       </section>
 
       <section id="regulators" className="mb-12 scroll-mt-24">
-        <h2 className="mb-1 text-2xl font-extrabold">Regulators you may need</h2>
+        <h2 className="mb-1 text-2xl font-bold">Regulators you may need</h2>
         <p className="mb-4 text-sm text-muted">Many ideas need a licence or registration before they can trade. Start early. Links go to each regulator&apos;s own website.</p>
         <div className="grid gap-3 sm:grid-cols-2">{regulators.map((r) => <a key={r.name} href={r.url} target="_blank" rel="noopener noreferrer" className="card block p-4 hover:border-[var(--brand)]"><div className="flex items-center justify-between font-bold">{r.name}<ExternalLink size={14} className="text-muted" /></div><div className="text-xs text-muted">{r.full}</div><p className="mt-1 text-sm">{r.why}</p></a>)}</div>
       </section>
 
       {docs.length > 0 && <section id="documents" className="mb-12 scroll-mt-24">
-        <h2 className="mb-4 text-2xl font-extrabold">Documents and guides</h2>
+        <h2 className="mb-4 text-2xl font-bold">Documents and guides</h2>
         <ul className="grid gap-3 sm:grid-cols-2">{docs.map((d) => <li key={d.id}><a href={d.url ?? '#'} className="card block p-4 hover:border-[var(--brand)]"><div className="text-xs text-muted">{d.category}</div><div className="font-bold">{d.title}</div><p className="text-sm text-muted">{d.body}</p></a></li>)}</ul>
       </section>}
 
       <section id="turnaround" className="mb-12 scroll-mt-24">
-        <h2 className="mb-1 text-2xl font-extrabold">How fast we respond</h2>
+        <h2 className="mb-1 text-2xl font-bold">How fast we respond</h2>
         <p className="mb-4 text-sm text-muted">Every report gets a reference and two deadlines. Urgent problems run on a 24-hour clock; others count working hours only (Monday to Friday, 08:00 to 17:00, not on public holidays).</p>
         <div className="card overflow-x-auto"><table className="w-full min-w-[520px] text-sm"><thead className="bg-sand/60 text-left text-xs uppercase text-muted"><tr><th className="p-3">Level</th><th className="p-3">Meaning</th><th className="p-3">First response</th><th className="p-3">Fixed within</th></tr></thead>
           <tbody className="divide-y divide-line">{Object.entries(SLA).map(([k, v]) => <tr key={k}><td className="p-3 font-bold">{k}</td><td className="p-3">{v.label}</td><td className="p-3">{v.respond} {v.clock === '24/7' ? 'hours' : 'working hours'}</td><td className="p-3">{v.resolve} {v.clock === '24/7' ? 'hours' : 'working hours'}</td></tr>)}</tbody></table></div>
       </section>
 
       <section id="support" className="card scroll-mt-24 p-6">
-        <h2 className="mb-1 text-2xl font-extrabold">Report a problem</h2>
+        <h2 className="mb-1 text-2xl font-bold">Report a problem</h2>
         <p className="mb-4 text-sm text-muted">You get a reference straight away and the deadlines for your case. No account needed.</p>
         <TicketForm name={me?.name} contact={me?.email} />
       </section>

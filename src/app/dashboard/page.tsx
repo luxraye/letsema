@@ -1,17 +1,26 @@
 import Link from 'next/link';
 import { and, desc, eq, isNull, sql, inArray } from 'drizzle-orm';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Inbox, ClipboardCheck, Gavel, AlertTriangle, Trophy } from 'lucide-react';
 import { db, schema } from '@/db';
 import { requireUser } from '@/lib/session';
-import { PageHeader, Stat, StatusBadge, Notice, Empty } from '@/components/ui';
+import { PageHeader, Stat, StatusBadge, Notice, Empty, Bars } from '@/components/ui';
 import { STATUS, ago, fmtDate } from '@/lib/format';
 import { liveInstances } from '@/lib/queries';
 import { pula } from '@/lib/instances';
-import { ROLE_LABEL } from '@/lib/rbac';
 
 export const dynamic = 'force-dynamic';
 
-const greet = () => { const h = new Date(Date.now() + 2 * 3600_000).getUTCHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; };
+
+const SUB: Record<string, string> = {
+  innovator: 'Your applications, what happens next, and messages from CEDA.',
+  evaluator: 'Applications waiting for your score, with names hidden.',
+  panel: 'The ranked shortlist, calibrated scores and the votes still needed.',
+  observer: 'A read-only view of the pipeline for the committee.',
+  consultant: 'People waiting in live chat and support tickets due soon.',
+  admin: 'The innovation pipeline today, and what needs you next.',
+  superadmin: 'The innovation pipeline today, and what needs you next.',
+  partner_admin: 'Your space’s competitions and where applications are.',
+};
 
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ denied?: string; welcome?: string }> }) {
   const me = await requireUser();
@@ -19,7 +28,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const first = me.name.replace(/^(Dr|Prof\.?)\s+/, '').split(' ')[0];
   return (
     <div>
-      <PageHeader eyebrow={ROLE_LABEL[me.role]} title={`${greet()}, ${first}`} />
+      <PageHeader title={`Dumela, ${first}`} sub={SUB[me.role]} />
       {sp.denied && <div className="mb-6"><Notice tone="red">Your role does not have access to that page.</Notice></div>}
       {sp.welcome && <div className="mb-6"><Notice tone="green">Welcome! Your email{me.phoneVerifiedAt ? ' and phone are' : ' is'} confirmed. Pick a competition to start.</Notice></div>}
       {me.role === 'innovator' && <Innovator userId={me.id} staff={me.organisation === 'CEDA'} />}
@@ -83,11 +92,13 @@ async function Consultant() {
   const [o] = await db.select({ n: sql<number>`count(*)::int` }).from(schema.tickets).where(inArray(schema.tickets.status, ['open', 'in_progress']));
   return (
     <div className="grid gap-3 sm:grid-cols-2">
-      <Link href="/dashboard/chat" className="card p-5 hover:border-[var(--brand)]"><div className="text-sm text-muted">Chats waiting</div><div className="text-3xl font-extrabold">{w.n}</div></Link>
-      <Link href="/dashboard/support" className="card p-5 hover:border-[var(--brand)]"><div className="text-sm text-muted">Open support tickets</div><div className="text-3xl font-extrabold">{o.n}</div></Link>
+      <Link href="/dashboard/chat" className="card p-5 hover:border-[var(--brand)]"><div className="text-sm text-muted">Chats waiting</div><div className="text-3xl font-bold">{w.n}</div></Link>
+      <Link href="/dashboard/support" className="card p-5 hover:border-[var(--brand)]"><div className="text-sm text-muted">Open support tickets</div><div className="text-3xl font-bold">{o.n}</div></Link>
     </div>
   );
 }
+
+const ACTION: Record<string, string> = { 'auth.signin': 'signed in', 'entry.submitted': 'submitted an application', 'entry.awarded': 'recorded an award', 'entry.screened': 'screened an application', 'evaluation.submitted': 'submitted a score', 'evaluation.no_conflict': 'declared no conflict', 'support.ticket_opened': 'opened a support ticket', 'chat.closed': 'closed a chat' };
 
 async function Oversight({ role }: { role: string }) {
   const counts = await db.select({ s: schema.entries.status, n: sql<number>`count(*)::int` }).from(schema.entries).groupBy(schema.entries.status);
@@ -98,11 +109,11 @@ async function Oversight({ role }: { role: string }) {
   return (
     <div className="space-y-6">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <Stat label="To screen" value={c('submitted') + c('screening')} />
-        <Stat label="With evaluators" value={c('in_review')} />
-        <Stat label="Shortlisted" value={c('shortlisted')} />
-        <Stat label="Awarded" value={c('awarded')} hint={pula(award.sum)} />
-        <Stat label="Overdue scores" value={overdue.n} />
+        <Stat label="To screen" value={c('submitted') + c('screening')} icon={Inbox} tone="amber" />
+        <Stat label="With evaluators" value={c('in_review')} icon={ClipboardCheck} tone="orange" />
+        <Stat label="Shortlisted" value={c('shortlisted')} icon={Gavel} tone="violet" />
+        <Stat label="Overdue scores" value={overdue.n} icon={AlertTriangle} tone="red" />
+        <Stat label={`Awarded (${c('awarded')})`} value={pula(award.sum)} icon={Trophy} tone="green" />
       </div>
       <div className="flex flex-wrap gap-2">
         {(role === 'admin' || role === 'superadmin' || role === 'partner_admin') && <Link href="/dashboard/screening" className="btn-primary">Screening queue <ArrowRight size={16} /></Link>}
@@ -110,7 +121,24 @@ async function Oversight({ role }: { role: string }) {
         <Link href="/dashboard/reports" className="btn-ghost">Reports</Link>
         <Link href="/dashboard/pipeline" className="btn-ghost">All applications</Link>
       </div>
-      <section><h2 className="mb-3 text-lg font-bold">Latest activity</h2><div className="card divide-y divide-line text-sm">{recent.map((r) => <div key={r.seq} className="flex gap-3 p-3"><span className="mono text-xs text-muted">#{r.seq}</span><span className="flex-1"><b>{r.actorName}</b> · {r.action.replace('.', ' ').replace(/_/g, ' ')}</span><span className="text-xs text-muted">{ago(r.at)}</span></div>)}</div></section>
+      <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
+        <section className="card p-5">
+          <h2 className="mb-4 text-lg font-semibold">Where applications are now</h2>
+          <Bars data={[
+            { label: 'Submitted', value: c('submitted') + c('screening') },
+            { label: 'Being scored', value: c('in_review') },
+            { label: 'Changes asked', value: c('returned') },
+            { label: 'With the panel', value: c('shortlisted') },
+            { label: 'Awarded', value: c('awarded') },
+          ]} />
+          <p className="mt-3 text-xs text-muted">Drafts are not counted ({c('draft')}). Not funded this round: {c('declined')}.</p>
+        </section>
+        <section className="card p-5">
+          <h2 className="mb-3 text-lg font-semibold">Latest activity</h2>
+          <ul className="space-y-3 text-sm">{recent.map((r) => <li key={r.seq}><b className="font-medium">{r.actorName}</b> <span className="text-muted">{ACTION[r.action] ?? r.action.replace(/[._]/g, ' ')}</span><div className="text-xs text-muted">{ago(r.at)}</div></li>)}</ul>
+          <Link href="/dashboard/audit" className="mt-4 inline-block text-sm font-medium text-[var(--brand)]">Full audit trail →</Link>
+        </section>
+      </div>
     </div>
   );
 }

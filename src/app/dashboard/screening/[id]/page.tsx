@@ -26,7 +26,7 @@ export default async function ScreenOne({ params }: { params: Promise<{ id: stri
   return (
     <div>
       <Link href="/dashboard/screening" className="text-sm text-muted hover:underline">← Screening</Link>
-      <div className="mb-6 mt-2 flex flex-wrap items-center gap-3"><h1 className="text-2xl font-extrabold">{e.ref}</h1><StatusBadge status={e.status} /><span className="text-sm text-muted">{i.name}</span></div>
+      <div className="mb-6 mt-2 flex flex-wrap items-center gap-3"><h1 className="text-2xl font-bold">{e.ref}</h1><StatusBadge status={e.status} /><span className="text-sm text-muted">{i.name}</span></div>
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
         <EntryBody entry={e} def={i.definition} blind={false} />
         <aside className="space-y-4">

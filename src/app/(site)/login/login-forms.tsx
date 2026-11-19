@@ -26,7 +26,7 @@ export function LoginForms({ next, notice }: { next: string; notice?: string }) 
           <div><label className="label" htmlFor="email">Email or phone</label><input className="field" id="email" name="email" autoComplete="username" required /></div>
           <div><div className="flex justify-between"><label className="label" htmlFor="password">Password</label><Link href="/forgot" className="text-sm font-semibold text-[var(--brand)]">Forgot password?</Link></div><input className="field" id="password" name="password" type="password" autoComplete="current-password" required /></div>
           <FormMessage state={pw} />
-          <Submit>Sign in</Submit>
+          <Submit className="btn-ink w-full !py-3 text-base font-medium">Sign in</Submit>
         </form>
       )}
       {tab === 'code' && (!awaitingCode ? (
@@ -42,7 +42,7 @@ export function LoginForms({ next, notice }: { next: string; notice?: string }) 
           <FormMessage state={codeVer ?? codeReq} />
           <div><label className="label" htmlFor="code">6-digit code</label><input className="field mono text-center text-2xl tracking-[.4em]" id="code" name="code" inputMode="numeric" pattern="\d{6}" maxLength={6} autoComplete="one-time-code" required autoFocus /></div>
           <p className="text-xs text-muted">Demo: the code is in the <Link className="underline" href="/demo-inbox" target="_blank">demo inbox</Link>.</p>
-          <Submit>Sign in</Submit>
+          <Submit className="btn-ink w-full !py-3 text-base font-medium">Sign in</Submit>
         </form>
       ))}
       {tab === 'passkey' && <PasskeySignIn next={next} />}

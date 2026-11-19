@@ -2,6 +2,7 @@
 import bcrypt from 'bcryptjs';
 import { sql } from 'drizzle-orm';
 import { db, schema } from '@/db';
+import { DEFAULT_THEME } from '@/lib/settings';
 import type { EntryStatus, InstanceDefinition, Role } from '@/db/schema';
 import { appendAudit } from '@/lib/audit';
 import { HACKATHON_RUBRIC, SECTORS, DISTRICTS, standardDefinition, REGULATORS } from '@/lib/catalogue';
@@ -26,7 +27,13 @@ async function wipe() {
 }
 
 async function main() {
-  if (process.argv.includes('--if-empty') && (await db.$count(schema.users)) > 0) { console.log('Database already has data; leaving it alone.'); process.exit(0); }
+  if (process.argv.includes('--if-empty') && (await db.$count(schema.users)) > 0) {
+    // Keep data, but move a theme still on the first CEDA defaults to the current ones.
+    const [t] = await db.select().from(schema.settings).where(sql`key = 'theme'`);
+    const v = t?.value as { preset?: string; accent?: string } | undefined;
+    if (v?.preset === 'ceda' && v.accent === '#f4a62a') await db.update(schema.settings).set({ value: DEFAULT_THEME }).where(sql`key = 'theme'`);
+    console.log('Database already has data; leaving it alone.'); process.exit(0);
+  }
   console.log('Seeding…');
   await wipe();
   const hash = await bcrypt.hash(DEMO_PASSWORD, 10);
@@ -331,7 +338,7 @@ async function main() {
   }
 
   await db.insert(schema.settings).values([
-    { key: 'theme', value: { preset: 'ceda', primary: '#d94914', accent: '#f4a62a', font: 'Poppins', radius: 20 } },
+    { key: 'theme', value: DEFAULT_THEME },
     { key: 'regulators', value: REGULATORS },
   ]);
 
