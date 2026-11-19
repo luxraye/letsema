@@ -62,7 +62,7 @@ export default async function Home() {
       </section>
 
       {/* The four jobs from the CEDA brief */}
-      <section className="border-b border-line bg-white py-14">
+      <section id="four-jobs" className="scroll-mt-20 border-b border-line bg-white py-14">
         <div className="mx-auto max-w-7xl px-4">
           <div className="max-w-3xl"><span className="eyebrow">What CEDA asked for</span><h2 className="mt-3 text-3xl font-extrabold">Four jobs, done in one place</h2><p className="mt-2 text-muted">CEDA asked for a platform that takes in submissions, lets evaluators evaluate, keeps communication with innovators secure, and tracks all of it. Here is where each happens.</p></div>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
