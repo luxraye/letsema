@@ -1,0 +1,660 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  INNOVATOR
+  EVALUATOR
+  ADJUDICATOR
+  ADMIN
+  SUPERADMIN
+  PARTNER_ADMIN
+  COMMITTEE_OBSERVER
+  CONSULTANT
+}
+
+enum InstanceRoleType {
+  ORGANISER
+  EVALUATOR
+  ADJUDICATOR
+  OBSERVER
+  CONSULTANT
+  MENTOR
+}
+
+enum PartnerStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum BlueprintStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum InstanceLifecycleStatus {
+  DRAFT
+  PUBLISHED
+  LIVE
+  CLOSED
+  ARCHIVED
+}
+
+enum EntryStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  SHORTLISTED
+  FLAGGED
+  APPROVED
+  AWARDED
+  REJECTED
+}
+
+enum CheckStatus {
+  PASS
+  WARN
+  FAIL
+}
+
+enum Scale {
+  SCALE_1
+  SCALE_2
+  SCALE_3
+  SCALE_4
+  SCALE_5
+  SCALE_6
+}
+
+enum DataType {
+  TYPE_A
+  TYPE_B
+  TYPE_C
+  TYPE_D
+  TYPE_E
+  TYPE_F
+}
+
+enum CallStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  passwordHash      String
+  name              String
+  role              Role      @default(INNOVATOR)
+  partnerId         String?
+  partner           Partner?  @relation(fields: [partnerId], references: [id], onDelete: SetNull)
+  phone             String?
+  /// Omang (national ID) number, used for the citizenship check.
+  omang             String?
+  dateOfBirth       DateTime?
+  gender            String?
+  district          String?
+  /// Company the innovator applies through.
+  organizationName  String?
+  /// CIPA company registration number.
+  licenseNumber     String?
+  /// Percentage of the company held by citizens aged 18-35.
+  youthShareholding Int?
+  /// Evaluator / adjudicator area of expertise.
+  expertise         String?
+  /// When the user accepted the privacy notice (Data Protection Act 2024).
+  consentAt         DateTime?
+  emailVerifiedAt   DateTime?
+  phoneVerifiedAt   DateTime?
+  phoneOtp          String?
+  phoneOtpExpiresAt DateTime?
+  emailOtp          String?
+  emailOtpExpiresAt DateTime?
+  resetPasswordToken String?
+  resetPasswordExpiresAt DateTime?
+  totpSecret        String?
+  totpEnabled       Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  entries          Entry[]           @relation("InnovatorEntries")
+  reviewedEntries  Entry[]           @relation("ReviewedEntries")
+  createdTemplates Template[]
+  instanceRoles    InstanceRole[]
+  instanceVersions InstanceVersion[]
+  evaluations      Evaluation[]      @relation("EvaluatorEvaluations")
+  messages         Message[]
+  auditLogs        AuditLog[]
+  notifications    Notification[]
+  forumThreads     ForumThread[]
+  forumReplies     ForumReply[]
+  notices          Notice[]
+  ledTeams         Team[]            @relation("TeamLead")
+  teamMemberships  TeamMember[]
+  apiKeysCreated   ApiKey[]          @relation("ApiKeyCreator")
+  subscriptions    Subscription[]
+  chatSessionsAsUser       ChatSession[]  @relation("UserChatSessions")
+  chatSessionsAsConsultant ChatSession[]  @relation("ConsultantChatSessions")
+  chatMessages             ChatMessage[]
+
+  @@index([partnerId])
+}
+
+/// An organiser space (e.g. CEDA, BDIH, BTC Innovation).
+model Partner {
+  id             String        @id @default(cuid())
+  name           String
+  slug           String        @unique
+  logoUrl        String?
+  primaryColor   String?
+  secondaryColor String?
+  status         PartnerStatus @default(ACTIVE)
+
+  instances        Instance[]
+  users            User[]
+  matrixDimensions MatrixDimension[]
+  apiKeys          ApiKey[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// A reusable, versioned Instance definition (e.g. 11-day hackathon, Ideas call).
+model Blueprint {
+  id          String          @id @default(cuid())
+  key         String
+  name        String
+  description String?
+  version     Int             @default(1)
+  definition  Json
+  status      BlueprintStatus @default(DRAFT)
+  publishedAt DateTime?
+
+  instances Instance[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([key, version])
+}
+
+/// One live competition run of a blueprint: dates, sealed rules, public slug.
+model Instance {
+  id               String                  @id @default(cuid())
+  partnerId        String
+  partner          Partner                 @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  blueprintId      String?
+  blueprint        Blueprint?              @relation(fields: [blueprintId], references: [id])
+  blueprintVersion Int?
+  name             String
+  slug             String                  @unique
+  description      String?
+  definition       Json
+  rulesHash        String
+  status           InstanceLifecycleStatus @default(DRAFT)
+  opensAt          DateTime?
+  closesAt         DateTime?
+
+  entries          Entry[]
+  tracks           Template[]
+  roles            InstanceRole[]
+  versions         InstanceVersion[]
+  matrixDimensions MatrixDimension[]
+  auditLogs        AuditLog[]
+  chatSessions     ChatSession[]
+  subscriptions    Subscription[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([partnerId])
+  @@index([status])
+}
+
+/// Scopes roles per Instance: ORGANISER, EVALUATOR, ADJUDICATOR, OBSERVER, CONSULTANT, MENTOR.
+model InstanceRole {
+  id         String           @id @default(cuid())
+  userId     String
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instanceId String
+  instance   Instance         @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  role       InstanceRoleType
+  createdAt  DateTime         @default(now())
+
+  @@unique([userId, instanceId, role])
+  @@index([instanceId])
+  @@index([userId])
+}
+
+/// Change log with required reason and definition diff when changing a published Instance.
+model InstanceVersion {
+  id          String   @id @default(cuid())
+  instanceId  String
+  instance    Instance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  version     Int
+  reason      String
+  diff        Json?
+  definition  Json
+  rulesHash   String
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([instanceId, version])
+  @@index([instanceId])
+}
+
+/// Dynamic classification matrix dimension (e.g. Sector, Venture Stage, Operator Tier).
+model MatrixDimension {
+  id         String                 @id @default(cuid())
+  partnerId  String?
+  partner    Partner?               @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  instanceId String?
+  instance   Instance?              @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  name       String
+  slug       String
+  sortOrder  Int                    @default(0)
+  values     MatrixDimensionValue[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([partnerId])
+  @@index([instanceId])
+}
+
+model MatrixDimensionValue {
+  id           String              @id @default(cuid())
+  dimensionId  String
+  dimension    MatrixDimension     @relation(fields: [dimensionId], references: [id], onDelete: Cascade)
+  label        String
+  code         String
+  sortOrder    Int                 @default(0)
+  templateTags TemplateMatrixTag[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([dimensionId, code])
+  @@index([dimensionId])
+}
+
+model TemplateMatrixTag {
+  templateId             String
+  template               Template             @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  matrixDimensionValueId String
+  matrixDimensionValue   MatrixDimensionValue @relation(fields: [matrixDimensionValueId], references: [id], onDelete: Cascade)
+
+  @@id([templateId, matrixDimensionValueId])
+}
+
+/// A track / form owned by an Instance (formerly standalone Template).
+model Template {
+  id               String              @id @default(cuid())
+  instanceId       String?
+  instance         Instance?           @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  code             String              @unique
+  name             String
+  description      String?
+  scale            Scale?
+  dataType         DataType?
+  schema           Json
+  status           CallStatus          @default(OPEN)
+  opensAt          DateTime            @default(now())
+  closesAt         DateTime
+  fundingSummary   String?
+  reviewersPerIdea Int                 @default(2)
+  createdById      String
+  createdBy        User                @relation(fields: [createdById], references: [id])
+  matrixTags       TemplateMatrixTag[]
+  entries          Entry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([instanceId])
+}
+
+/// Innovator Team (1 to 5 members).
+model Team {
+  id        String       @id @default(cuid())
+  name      String
+  leadId    String
+  lead      User         @relation("TeamLead", fields: [leadId], references: [id])
+  members   TeamMember[]
+  entries   Entry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([leadId])
+}
+
+model TeamMember {
+  id           String   @id @default(cuid())
+  teamId       String
+  team         Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id])
+  name         String
+  email        String
+  phone        String?
+  omang        String?
+  roleInTeam   String?
+  shareholding Float?
+  isLead       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([teamId])
+}
+
+/// One team's or founder's submission inside an Instance (formerly Instance).
+model Entry {
+  id              String      @id @default(cuid())
+  referenceCode   String      @unique
+  title           String
+  instanceId      String
+  instance        Instance    @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  templateId      String?
+  template        Template?   @relation(fields: [templateId], references: [id])
+  innovatorId     String
+  innovator       User        @relation("InnovatorEntries", fields: [innovatorId], references: [id])
+  teamId          String?
+  team            Team?       @relation(fields: [teamId], references: [id])
+  status          EntryStatus @default(DRAFT)
+  deadline        DateTime
+  encryptionKey   String
+  submissionJwt   String?
+  dataHash        String?
+  submissionCount Int         @default(0)
+  reviewNotes     String?
+  reviewedById    String?
+  reviewedBy      User?       @relation("ReviewedEntries", fields: [reviewedById], references: [id])
+  awardAmount     Int?
+  showcase        Boolean     @default(false)
+  score           Float?
+  rank            Int?
+  consensusScore  Float?
+  consensusNote   String?
+  createdAt       DateTime    @default(now())
+  submittedAt     DateTime?
+  reviewedAt      DateTime?
+  awardedAt       DateTime?
+
+  files        EntryFile[]
+  fields       EntryField[]
+  evaluations  Evaluation[]
+  messages     Message[]
+  audits       AuditLog[]
+  checkResults CheckResult[]
+  subscriptions Subscription[]
+
+  @@index([instanceId])
+  @@index([status])
+  @@index([innovatorId])
+  @@map("entries")
+}
+
+model EntryFile {
+  id            String   @id @default(cuid())
+  entryId       String
+  entry         Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  fileKey       String
+  fileName      String
+  fileExtension String
+  mimeType      String   @default("application/octet-stream")
+  fileSize      Int
+  clientHash    String
+  serverHash    String
+  content       Bytes
+  uploadedAt    DateTime @default(now())
+
+  @@unique([entryId, fileKey])
+  @@index([entryId])
+  @@map("entry_files")
+}
+
+model EntryField {
+  id          String    @id @default(cuid())
+  entryId     String
+  entry       Entry     @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  fieldKey    String
+  fieldValue  String
+  validatedAt DateTime?
+
+  @@index([entryId])
+  @@map("entry_fields")
+}
+
+/// Pre-flight and guard check results: real type, size, malware stub, secret scanning, eligibility.
+model CheckResult {
+  id           String      @id @default(cuid())
+  entryId      String
+  entry        Entry       @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  checkKey     String
+  name         String
+  category     String
+  status       CheckStatus
+  detail       String?
+  evidenceHash String?
+  metadata     Json?
+  createdAt    DateTime    @default(now())
+
+  @@index([entryId])
+  @@index([status])
+  @@map("check_results")
+}
+
+/// One evaluator's scorecard for one entry.
+model Evaluation {
+  id           String    @id @default(cuid())
+  entryId      String
+  entry        Entry     @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  evaluatorId  String
+  evaluator    User      @relation("EvaluatorEvaluations", fields: [evaluatorId], references: [id])
+  assignedById String
+  assignedAt   DateTime  @default(now())
+  dueAt        DateTime
+  conflict     Boolean?
+  conflictNote String?
+  scores       Json?
+  total        Float?
+  feedback     String?
+  privateNote  String?
+  submittedAt  DateTime?
+
+  @@unique([entryId, evaluatorId])
+  @@index([evaluatorId, submittedAt])
+}
+
+/// Clarification thread on an entry.
+model Message {
+  id        String   @id @default(cuid())
+  entryId   String
+  entry     Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  body      String
+  internal  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([entryId, createdAt])
+}
+
+/// Tamper-evident hash-chained audit log.
+model AuditLog {
+  id         String    @id @default(cuid())
+  actorId    String
+  actor      User      @relation(fields: [actorId], references: [id])
+  action     String
+  instanceId String?
+  instance   Instance? @relation(fields: [instanceId], references: [id], onDelete: SetNull)
+  entryId    String?
+  entry      Entry?    @relation(fields: [entryId], references: [id], onDelete: SetNull)
+  metadata   Json?
+  prevHash   String?
+  hash       String?
+  createdAt  DateTime  @default(now())
+
+  @@index([createdAt])
+  @@index([instanceId])
+  @@index([entryId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+}
+
+/// Outbound API keys per Partner with SHA-256 hash.
+model ApiKey {
+  id          String    @id @default(cuid())
+  partnerId   String?
+  partner     Partner?  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  name        String
+  keyPrefix   String
+  keyHash     String
+  createdById String
+  createdBy   User      @relation("ApiKeyCreator", fields: [createdById], references: [id])
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([partnerId])
+  @@index([keyPrefix])
+}
+
+model ForumThread {
+  id        String       @id @default(cuid())
+  title     String
+  body      String
+  category  String
+  pinned    Boolean      @default(false)
+  authorId  String
+  author    User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  replies   ForumReply[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([category, createdAt])
+}
+
+model ForumReply {
+  id        String      @id @default(cuid())
+  body      String
+  threadId  String
+  thread    ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+
+  @@index([threadId, createdAt])
+}
+
+model Notice {
+  id        String   @id @default(cuid())
+  title     String
+  summary   String
+  dos       String   @default("")
+  donts     String   @default("")
+  category  String
+  pinned    Boolean  @default(false)
+  authorId  String?
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+}
+
+model DemoInboxMessage {
+  id        String   @id @default(cuid())
+  to        String
+  type      String   // "EMAIL" | "SMS"
+  subject   String?
+  body      String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([to, createdAt])
+}
+
+model ChatSession {
+  id              String        @id @default(cuid())
+  instanceId      String?
+  instance        Instance?     @relation(fields: [instanceId], references: [id], onDelete: SetNull)
+  userId          String
+  user            User          @relation("UserChatSessions", fields: [userId], references: [id], onDelete: Cascade)
+  consultantId    String?
+  consultant      User?         @relation("ConsultantChatSessions", fields: [consultantId], references: [id], onDelete: SetNull)
+  status          String        @default("WAITING") // "WAITING" | "ACTIVE" | "RESOLVED" | "CLOSED"
+  subject         String?
+  startedAt       DateTime      @default(now())
+  firstResponseAt DateTime?
+  resolvedAt      DateTime?
+  messages        ChatMessage[]
+
+  @@index([status, startedAt])
+  @@index([instanceId])
+}
+
+model ChatMessage {
+  id         String      @id @default(cuid())
+  sessionId  String
+  session    ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  senderId   String
+  sender     User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  senderRole String
+  body       String
+  createdAt  DateTime    @default(now())
+
+  @@index([sessionId, createdAt])
+}
+
+model Subscription {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instanceId String?
+  instance   Instance? @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  entryId    String?
+  entry      Entry?    @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  channel    String    // "EMAIL" | "SMS" | "IN_APP"
+  active     Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+
+  @@index([userId, channel])
+  @@index([instanceId])
+}
+
+model SupportTicket {
+  id              String   @id @default(cuid())
+  referenceCode   String   @unique
+  name            String
+  email           String
+  phone           String?
+  severity        String   // "P1" | "P2" | "P3"
+  category        String
+  subject         String
+  description     String
+  status          String   @default("OPEN") // "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED"
+  resolutionNotes String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([severity, status])
+  @@index([createdAt])
+}

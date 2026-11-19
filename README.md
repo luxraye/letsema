@@ -1,73 +1,141 @@
 # CEDA Innovation Portal
 
-Our entry for the CEDA Innovation Management Portal Hackathon 2026: one place where CEDA takes in submissions, evaluates them, talks to innovators securely, and tracks all of it.
+**One place where young Batswana enter CEDA's competitions, see exactly how they'll be judged, and follow their idea from application to award.**
 
-## CEDA's four jobs, and where each happens
+**Live site:** https://ceda-portal--neon-bw-3x0x.us-east4.hosted.app
 
-| CEDA asked for | Where it lives |
-| --- | --- |
-| Take submissions into a single repository | `/instances` → apply. Autosaving 4-step form, checked uploads, a sealed receipt with a fingerprint on submit, versions with a word-level diff on resubmission. |
-| Have evaluators evaluate there | Screening (`/dashboard/screening`), blind scoring with conflict declarations (`/dashboard/review`), calibrated ranking and a panel vote (`/dashboard/panel`). |
-| Communicate with innovators securely | A message thread per application with staff-only notes, live chat with working hours, support tickets with deadlines, free email/SMS alerts. |
-| Track all of it | Status timeline per application, public tracker by reference, and a hash-chained audit trail anyone can verify at `/api/audit/verify`. |
+Built by Local Grow (Pty) Ltd for the CEDA Innovation Management Portal Hackathon 2026. All people, companies and ideas on the site are **demo data**.
 
-CEDA did not supply a process flow, so we designed one: **Instances**. An Instance is a competition defined by its rules (eligibility, stages, form, rubric, reviewers per entry, prizes). Admins build them in Instance Studio with no code, and partners such as BDIH and BTC run their own in their own spaces. See `/how-it-works`.
+---
 
-Judges: `/judges` maps every scoring criterion to the screen that shows it, with one-click sign-in as the right role.
+## See it in 3 minutes
 
-## Demo accounts
+1. **Open the [Judges' tour](https://ceda-portal--neon-bw-3x0x.us-east4.hosted.app/judges).** It walks you through every main screen, with one-click sign-in for each role.
+2. **Watch an idea's journey at [/journey](https://ceda-portal--neon-bw-3x0x.us-east4.hosted.app/journey).** One demo idea goes through all 16 steps, from eligibility check to verified certificate. Each step has an "Open this screen" button.
+3. **Explore freely.** Use the four menus at the top (Compete, Showcase, Learn, Partners), the Explore hub on the home page, or press **Ctrl/⌘ + K** to search for any page. Click the small **ⓘ** buttons for a one-line explanation of anything.
 
-Every account uses the password `CedaDemo2026!`. The sign-in page also has one-click buttons.
+## Demo sign-ins
 
-| Role | Email |
-| --- | --- |
-| Innovator | innovator@demo.ceda.bw |
-| Evaluator | evaluator@demo.ceda.bw |
-| Adjudication panel | panel@demo.ceda.bw |
-| Committee observer | observer@demo.ceda.bw |
-| CEDA consultant | consultant@demo.ceda.bw |
-| CEDA administrator | admin@demo.ceda.bw |
-| Partner admin (BDIH) | partner@demo.ceda.bw |
-| Super administrator | super@demo.ceda.bw |
-| CEDA staff innovator | staff@demo.ceda.bw |
+All demo accounts use the password **`CedaDemo2026!`**. You can also sign in with one click from the [login page](https://ceda-portal--neon-bw-3x0x.us-east4.hosted.app/login).
 
-Demo emails and SMS are not sent; they appear at `/demo-inbox`. All people, companies and applications in the demo data are fictional.
+| Role | Email | What you can try |
+|---|---|---|
+| Innovator (applicant) | `innovator@demo.ceda.bw` | Apply, run the submission check, track an application, read feedback |
+| Evaluator | `evaluator@demo.ceda.bw` | Declare conflicts, score applications without seeing names |
+| Adjudication panel | `panel@demo.ceda.bw` | Review the ranking, shortlist, make award decisions |
+| CEDA programme admin | `admin@demo.ceda.bw` | Build and publish a competition, manage content, see reports |
+| Super admin | `super@demo.ceda.bw` | Users and roles, platform settings, activity record |
+| Partner admin (demo) | `bdih.admin@demo.ceda.bw` / `btc.admin@demo.ceda.bw` | Run competitions in a partner's own space |
+| CEDA consultant | `consultant@demo.ceda.bw` | Answer live chat, see chat reports |
+| Committee observer | `observer@demo.ceda.bw` | Watch a competition's progress, read only |
 
-## Run it
+Emails and text messages (verification links, one-time codes, password resets) are shown at [/demo-inbox](https://ceda-portal--neon-bw-3x0x.us-east4.hosted.app/demo-inbox), so every sign-up and sign-in flow works without a real inbox or phone.
 
-Needs Node.js 22 and PostgreSQL 16.
+## What the portal does
+
+**For young innovators:**
+- check eligibility in 30 seconds
+- apply with a guided form that won't let you miss a required answer
+- see problems with your files before you submit
+- get a signed receipt
+- track your application at every stage
+- get feedback on every scoring criterion
+- receive free alerts by email, SMS or in the portal
+- chat with a CEDA consultant (09:00–16:00, working days)
+
+**For evaluators and the panel:**
+- a personal queue with due dates
+- a conflict-of-interest declaration before each application opens
+- **blind scoring** (no names, ID numbers or company names)
+- a flag when evaluators disagree a lot, a space to agree a joint score, and a fair ranking anyone can re-check
+
+**For CEDA staff and partners:**
+- build a new competition **without a developer**: dates, who can enter, the application form, how it's judged
+- try it out with sample applications before publishing
+- watch it run from one page
+- manage forms, guides, FAQs and notices
+- see reports on participation, scores and timelines
+
+## The big idea: Instances
+
+Every competition on the portal is an **Instance**: one competition with its own dates, entry rules, application form and scoring. CEDA staff set it up in the **Instance Studio** in four simple steps (or with full control in Advanced mode).
+
+When an Instance is published, its rules are **locked with a "rules seal"**. If anyone changes the rules later, everyone can see it: the change needs a written reason, participants are notified, and the change is recorded. Applicants, judges and the public can check that the rules they see are the ones that were published.
+
+This means CEDA (and partners such as innovation hubs) can run any kind of competition the same fair, transparent way: a hackathon, an ideas call or a pitch day.
+
+## Fair, safe and private
+
+| What | How it helps |
+|---|---|
+| **Locked rules** | Rules can't be changed quietly once a competition opens |
+| **Submission check** | Files are checked before they're accepted: wrong file types, hidden programs, oversized or unsafe archives, exposed passwords in code, and proposals over the page limit |
+| **Signed receipts and certificates** | Anyone can confirm a receipt or award is genuine at [/verify](https://ceda-portal--neon-bw-3x0x.us-east4.hosted.app/verify) |
+| **Blind scoring** | Evaluators judge the idea, not who submitted it |
+| **Tamper-proof activity record** | Every important action is recorded, and any edit to past records is detected |
+| **Role-based access** | Each role only sees what it needs; partners only see their own space |
+| **Data Protection Act 2024** | Consent is recorded, people can download their data, and data is kept only as long as needed |
+
+<details>
+<summary><strong>For technical judges</strong></summary>
+
+- **Rules seal:** the Instance definition (11 sections) is canonicalised (sorted keys) and hashed with SHA-256 to give its `rulesHash`. Edits after publishing create a new `InstanceVersion` with a diff and a reason.
+- **Eligibility:** a small JSON rule language (`all` / `any` / `not` plus comparison operators), evaluated on the server.
+- **Submission check:**
+  - file type from magic bytes, so PE/MZ executables are blocked whatever the extension
+  - zip-bomb ratio and zip-slip path checks
+  - SHA-256 hash checked in the browser and on the server
+  - PDF page limit
+  - secret scanning in source archives
+  - results stored per entry
+- **Receipts and certificates:** HMAC-signed; checked at `/verify`.
+- **Activity record:** the audit log is hash-chained (`prevHash` → `hash`), and the chain is verified from the super-admin audit page.
+- **Ranking:** computed from stored scores and the rubric, so it can be reproduced.
+- **API:** partner-scoped API v1 with hashed keys and HMAC-signed webhooks. Docs are at `/api/v1/docs`.
+- **Stack:** Next.js (App Router), TypeScript, Prisma, PostgreSQL (Neon), Auth.js, Tailwind CSS, Playwright.
+
+</details>
+
+## Hosting
+
+- **App:** Google Cloud Firebase App Hosting, region `us-east4`
+- **Database:** Neon PostgreSQL, AWS `us-east-1`
+- **Cost:** the live [status page](https://ceda-portal--neon-bw-3x0x.us-east4.hosted.app/status) shows the estimated monthly cost (about P734 / $54), live health and uptime. Support turnaround times are on [/support](https://ceda-portal--neon-bw-3x0x.us-east4.hosted.app/support).
+
+## Run it on your computer
+
+You need Node.js 20 or newer, Yarn 1 and a PostgreSQL database.
 
 ```bash
-cp .env.example .env          # set DATABASE_URL and SESSION_SECRET
-npm install
-npm run db:push               # create tables
-npm run db:seed               # demo data (wipes the database)
-npm run dev                   # http://localhost:3000
+yarn
+cp .env.example .env    # set DATABASE_URL, DIRECT_URL, AUTH_SECRET and JWT_SECRET
+yarn db:push            # create the tables
+yarn db:seed            # load the demo data
+yarn dev                # open http://localhost:3000
 ```
 
-Production: `npm run build && npm run start`. The build is a standalone Node server, so it runs in one container on any cloud or on servers in Botswana. Health check: `/api/health`.
-
-## Tests
+**Checks:**
 
 ```bash
-npm run typecheck
-npm test                      # unit tests: scoring, calibration, integrity, working hours, roles
-npm run test:e2e              # browser tests: every page for every role, and the main flows
+yarn typecheck
+yarn lint
+npx tsx --test tests/*.test.ts   # unit tests
+yarn build
+npx playwright test              # end-to-end tests for every role
 ```
 
-GitHub Actions runs all of them on every push, against a fresh PostgreSQL and a production build.
+## Where things are
 
-## How it is built
+| Folder | What's inside |
+|---|---|
+| `src/app/(public)` | Public pages: home, competitions, eligibility, tracking, journey, verify, support |
+| `src/app/dashboard` | Signed-in dashboards for each role |
+| `src/lib/instance-engine` | The Instances engine: definition, rules, sealing, ranking |
+| `prisma/` | Database schema and demo data |
+| `tests/` | Unit tests and end-to-end tests |
+| `docs/user-manual.md` | Step-by-step guide for every role |
 
-- Next.js 16 (App Router, server actions), React 19, TypeScript, Tailwind CSS v4.
-- PostgreSQL via Drizzle ORM. Files are stored in the database, not on public links.
-- Server-side sessions (random tokens stored as SHA-256), bcrypt passwords with lockout, one-time codes, passkeys (WebAuthn) for fingerprint and face sign-in.
-- Role-based access with eight roles; admins run the process but cannot score or vote.
-- Audit trail: each record carries the hash of the one before, appended under a database lock.
-- Partner API at `/api/v1` with keys stored only as fingerprints and scoped to a space.
+## More
 
-## Honest notes
-
-- All code in this repository was written from 19 November 2026 onwards, and the commit history shows each step. An earlier prototype of ours, in another repository, served as a reference for features and, from 19 November, for the visual design. The look (colour tokens, sunrise logo shape, header, cards, dashboard) was matched to it by rewriting the components here, not by copying its files.
-- Photos are from Unsplash under the Unsplash licence; credits are in `public/photos/CREDITS.md` and on `/status`.
-- The privacy notice and regulator list are prototypes for CEDA's own teams to confirm.
+- **User manual:** [docs/user-manual.md](docs/user-manual.md)
+- **Hackathon submission notes:** [hackathon.md](hackathon.md)
