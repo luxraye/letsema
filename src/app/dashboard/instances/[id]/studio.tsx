@@ -26,7 +26,7 @@ export function StudioEditor({ id, live, def: initial, meta: m0, photos, rulesHa
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_18rem]">
       <div className="min-w-0">
-        <div role="tablist" className="mb-4 flex gap-1 overflow-x-auto rounded-xl bg-white p-1 shadow-sm">{TABS.map((t) => <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold ${tab === t ? 'bg-ink text-white' : 'text-muted hover:text-ink'}`}>{t}</button>)}</div>
+        <div role="tablist" className="mb-4 flex gap-1 overflow-x-auto rounded-xl bg-surface p-1 shadow-sm">{TABS.map((t) => <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold ${tab === t ? 'bg-ink text-white' : 'text-muted hover:text-fg'}`}>{t}</button>)}</div>
         <div className="card space-y-4 p-5">
           {tab === 'Basics' && <>
             <div><label className="label" htmlFor="n">Name</label><input id="n" className="field" value={meta.name} onChange={(e) => setMeta({ ...meta, name: e.target.value })} /></div>

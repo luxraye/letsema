@@ -45,7 +45,7 @@ export function ChatWidget({ signedIn }: { signedIn: boolean }) {
   return (
     <div className="fixed bottom-4 right-4 z-40">
       {open && (
-        <div className="mb-3 flex h-[32rem] max-h-[75dvh] w-[22rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-2xl" role="dialog" aria-label="Live chat">
+        <div className="mb-3 flex h-[32rem] max-h-[75dvh] w-[22rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl" role="dialog" aria-label="Live chat">
           <div className="flex items-center gap-3 bg-ink px-4 py-3 text-white">
             <span className={`size-2.5 rounded-full ${hours?.open ? 'bg-emerald-400' : 'bg-stone-400'}`} />
             <div className="min-w-0 flex-1"><div className="text-sm font-bold">CEDA live chat</div><div className="truncate text-xs text-white/70">{chat?.consultant ? `With ${chat.consultant}` : hours?.reason ?? '…'}</div></div>
@@ -53,18 +53,18 @@ export function ChatWidget({ signedIn }: { signedIn: boolean }) {
           </div>
           <div className="flex-1 space-y-2 overflow-y-auto bg-sand/50 p-3 text-sm">
             {!chat && (
-              <div className="rounded-xl bg-white p-3 text-muted">
-                <b className="text-ink">Dumela!</b> Ask us anything about applying, documents or your application. {hours?.open ? 'A consultant usually replies within two minutes.' : 'We are offline now. Leave a message and we will reply by email or SMS on the next working day.'}
+              <div className="rounded-xl bg-surface p-3 text-muted">
+                <b className="text-fg">Dumela!</b> Ask us anything about applying, documents or your application. {hours?.open ? 'A consultant usually replies within two minutes.' : 'We are offline now. Leave a message and we will reply by email or SMS on the next working day.'}
                 <div className="mt-2 text-xs">Hours: Monday to Friday, 09:00 to 16:00 (not on public holidays).</div>
               </div>
             )}
             {chat?.messages.map((m) => (
               <div key={m.id} className={m.from === 'user' ? 'flex justify-end' : m.from === 'system' ? 'text-center text-xs text-muted' : 'flex'}>
-                {m.from === 'system' ? <span>{m.body}</span> : <span className={`max-w-[85%] rounded-2xl px-3 py-2 ${m.from === 'user' ? 'bg-[var(--brand)] text-white' : 'bg-white'}`}>{m.body}</span>}
+                {m.from === 'system' ? <span>{m.body}</span> : <span className={`max-w-[85%] rounded-2xl px-3 py-2 ${m.from === 'user' ? 'bg-[var(--brand)] text-white' : 'bg-surface'}`}>{m.body}</span>}
               </div>
             ))}
             {chat?.status === 'closed' && (
-              <div className="rounded-xl bg-white p-3 text-center text-xs">
+              <div className="rounded-xl bg-surface p-3 text-center text-xs">
                 This chat has ended. How did we do?
                 <div className="mt-1 flex justify-center gap-1">{[1, 2, 3, 4, 5].map((n) => <button key={n} aria-label={`${n} stars`} onClick={() => post({ action: 'rate', id: chat.id, rating: n })}><Star size={18} className="text-amber" /></button>)}</div>
                 <button onClick={restart} className="mt-2 underline">Start a new chat</button>

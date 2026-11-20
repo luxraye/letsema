@@ -103,3 +103,14 @@ test('dial *161#: track an application without data', async ({ page }) => {
   await page.getByRole('button', { name: 'Send' }).click();
   await expect(page.locator('pre')).toContainText('CEDA-26-0101');
 });
+
+test('look switch: burgundy by default, one tap to azure, remembered on reload', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'burgundy');
+  await page.getByRole('button', { name: 'Switch to the light Azure look' }).first().click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'azure');
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'azure');
+  await page.getByRole('button', { name: 'Switch to the Burgundy look' }).first().click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'burgundy');
+});

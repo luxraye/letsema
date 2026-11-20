@@ -17,7 +17,7 @@ export default async function Community({ searchParams }: { searchParams: Promis
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
       <PageHeader eyebrow="Community" title="Ask other innovators" sub="Questions about pitching, teams, regulators and funding. CEDA consultants drop in too." actions={<Link href="/community/new" className="btn-primary"><Plus size={16} /> Ask a question</Link>} />
-      <div className="mb-5 flex flex-wrap gap-2 text-sm"><Link href="/community" className={`chip border !py-1.5 ${!c ? 'border-ink bg-ink text-white' : 'border-line bg-white'}`}>All</Link>{FORUM_CATEGORIES.map((k) => <Link key={k} href={`/community?c=${k}`} className={`chip border !py-1.5 ${c === k ? 'border-ink bg-ink text-white' : 'border-line bg-white'}`}>{k}</Link>)}</div>
+      <div className="mb-5 flex flex-wrap gap-2 text-sm"><Link href="/community" className={`chip border !py-1.5 ${!c ? 'border-ink bg-ink text-white' : 'border-line bg-surface'}`}>All</Link>{FORUM_CATEGORIES.map((k) => <Link key={k} href={`/community?c=${k}`} className={`chip border !py-1.5 ${c === k ? 'border-ink bg-ink text-white' : 'border-line bg-surface'}`}>{k}</Link>)}</div>
       <ul className="card divide-y divide-line">
         {rows.length === 0 && <li className="p-6 text-sm text-muted">No questions here yet. Be the first to ask.</li>}
         {rows.map(({ t, author, replies, last }) => (

@@ -22,7 +22,7 @@ export function Sidebar({ items, badges, user }: { items: NavItem[]; badges: Rec
             const I = ICONS[i.icon as keyof typeof ICONS] ?? Home;
             const active = i.href === '/dashboard' ? path === '/dashboard' : path.startsWith(i.href);
             return (
-              <Link key={i.href} href={i.href} onClick={() => setOpen(false)} aria-current={active ? 'page' : undefined} className={`my-0.5 flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium transition ${active ? 'bg-[var(--brand)] text-white shadow-sm' : 'text-white/85 hover:bg-white/10 hover:text-white'}`}>
+              <Link key={i.href} href={i.href} onClick={() => setOpen(false)} aria-current={active ? 'page' : undefined} className={`my-0.5 flex items-center gap-3 rounded-lg px-3 py-2.5 text-[15px] font-medium transition ${active ? 'bg-gradient-to-r from-[var(--t-brand)] to-[var(--t-bark)] text-white shadow-[0_8px_24px_-10px_var(--t-glow)]' : 'text-white/80 hover:translate-x-0.5 hover:bg-white/10 hover:text-white'}`}>
                 <I size={18} />{i.label}
                 {badges[i.href] ? <span className={`ml-auto rounded-full px-1.5 text-[11px] font-bold ${active ? 'bg-white text-[var(--brand)]' : 'bg-[var(--brand)] text-white'}`}>{badges[i.href]}</span> : null}
               </Link>
@@ -43,7 +43,7 @@ export function Sidebar({ items, badges, user }: { items: NavItem[]; badges: Rec
   return (
     <>
       <button className="fixed left-3 top-3 z-50 grid size-10 place-items-center rounded-xl bg-ink text-white lg:hidden" aria-label="Open menu" onClick={() => setOpen(true)}><Menu size={20} /></button>
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col overflow-y-auto bg-ink p-2 lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col overflow-y-auto border-r border-white/10 bg-ink bg-[radial-gradient(30rem_20rem_at_0%_0%,var(--t-aura-1),transparent_70%)] p-2 lg:flex">
         <Link href="/" className="mb-5 block px-2.5 pt-3"><Logo dark /></Link>{nav}<div className="mt-auto">{foot}</div>
       </aside>
       {open && (

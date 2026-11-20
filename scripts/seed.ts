@@ -32,6 +32,12 @@ async function main() {
     const [t] = await db.select().from(schema.settings).where(sql`key = 'theme'`);
     const v = t?.value as { preset?: string; accent?: string } | undefined;
     if (v?.preset === 'ceda' && v.accent === '#f4a62a') await db.update(schema.settings).set({ value: DEFAULT_THEME }).where(sql`key = 'theme'`);
+    // Once only: move a theme still on the CEDA preset to the new built-in Burgundy/Azure look.
+    const [moved] = await db.select().from(schema.settings).where(sql`key = 'look_v2'`);
+    if (!moved) {
+      if (!v || v.preset === 'ceda') await db.insert(schema.settings).values({ key: 'theme', value: DEFAULT_THEME }).onConflictDoUpdate({ target: schema.settings.key, set: { value: DEFAULT_THEME } });
+      await db.insert(schema.settings).values({ key: 'look_v2', value: true });
+    }
     console.log('Database already has data; leaving it alone.'); process.exit(0);
   }
   console.log('Seeding…');

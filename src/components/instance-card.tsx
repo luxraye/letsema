@@ -12,11 +12,11 @@ export function InstanceCard({ x }: { x: Row }) {
   return (
     <Link href={`/i/${x.i.slug}`} className="card group flex flex-col p-5 transition hover:-translate-y-0.5 hover:shadow-lg">
       <div className="flex items-start justify-between gap-2">
-        <span className="rounded-full bg-sand px-2.5 py-1 text-[11px] font-semibold text-ink">{x.space.name}</span>
+        <span className="rounded-full bg-sand px-2.5 py-1 text-[11px] font-semibold text-fg">{x.space.name}</span>
         <span className={`chip shrink-0 !text-[10px] uppercase tracking-wider ${accepting ? 'bg-emerald-100 text-emerald-800' : 'bg-stone-100 text-stone-700'}`}>{accepting ? 'Live' : st.stage?.label ?? 'Closed'}</span>
       </div>
       <h3 className="mt-4 text-lg font-semibold leading-snug">{x.i.name}</h3>
-      <p className="mt-1 line-clamp-3 text-[13px] text-ink/80">{x.i.tagline}</p>
+      <p className="mt-1 line-clamp-3 text-[13px] text-fg/80">{x.i.tagline}</p>
       <div className="mt-4 grid grid-cols-2 gap-2 rounded-xl bg-sand/70 p-3 text-[10px]">
         <div><div className="font-bold uppercase tracking-wider">Prize pool</div><div className="text-sm font-semibold">{pula(prizePool(x.i.definition))}</div></div>
         <div><div className="font-bold uppercase tracking-wider">Entries</div><div className="text-sm">{x.entries} so far</div></div>

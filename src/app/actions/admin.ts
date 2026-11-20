@@ -159,7 +159,7 @@ export async function unlockUser(userId: string) {
 export async function saveTheme(_: AState, fd: FormData): Promise<AState> {
   const me = await requireUser({ perm: 'settings.manage' });
   const preset = String(fd.get('preset') ?? '');
-  const base: Theme = PRESETS[preset] ?? PRESETS.ceda;
+  const base: Theme = PRESETS[preset] ?? PRESETS.letsema;
   const hex = (v: FormDataEntryValue | null, f: string) => (typeof v === 'string' && /^#[0-9a-f]{6}$/i.test(v) ? v : f);
   const font = String(fd.get('font') ?? base.font);
   const t: Theme = { preset: fd.get('custom') === 'on' ? 'custom' : base.preset, primary: hex(fd.get('primary'), base.primary), accent: hex(fd.get('accent'), base.accent), font: FONTS.includes(font) ? font : base.font, radius: Math.max(0, Math.min(28, Number(fd.get('radius') ?? base.radius))) };
