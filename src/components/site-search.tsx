@@ -52,7 +52,7 @@ export function SiteSearch() {
       <button type="button" onClick={() => setOpen(true)} className="grid size-8 place-items-center rounded-full text-white/80 hover:bg-white/10 md:hidden" aria-label="Search the portal"><Search size={17} /></button>
       {open && (
         <div className="fixed inset-0 z-[60] flex items-start justify-center bg-ink/60 p-4 pt-[12vh] backdrop-blur-sm" onClick={() => setOpen(false)}>
-          <div role="dialog" aria-modal="true" aria-label="Search" className="w-full max-w-xl overflow-hidden rounded-2xl bg-white text-ink shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" aria-label="Search" className="w-full max-w-xl overflow-hidden rounded-2xl bg-surface text-fg shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 border-b border-line px-4">
               <Search size={18} className="text-muted" />
               <input ref={input} autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search competitions, help, funded ideas, or a reference like CEDA-26-0101"

@@ -9,7 +9,7 @@ export const metadata = { title: 'For the judging panel' };
 type Shot = { what: string; href: string; as?: string };
 const MAP: Record<string, Shot[]> = {
   general: [
-    { what: 'CEDA look, and admins can restyle it with no code (colours, font, corners, presets)', href: '/dashboard/settings', as: 'admin' },
+    { what: 'Two looks with a one-tap switch (Burgundy and light Azure), and admins can restyle it with no code (colours, font, corners, presets)', href: '/dashboard/settings', as: 'admin' },
     { what: 'Self-registration with checks on every field, then a code by email or SMS', href: '/register' },
     { what: 'Sign in by password, one-time code, or fingerprint and face (passkeys)', href: '/login' },
     { what: 'Forgot password, with a code and sign-out everywhere', href: '/forgot' },

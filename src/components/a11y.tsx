@@ -28,7 +28,7 @@ export function A11yMenu({ dark = false }: { dark?: boolean }) {
     <div className="relative">
       <button onClick={() => setOpen(!open)} aria-expanded={open} aria-label="Accessibility and language" className={`grid size-9 place-items-center rounded-lg ${dark ? 'text-white/80 hover:bg-white/10' : 'text-muted hover:bg-sand'}`}><Accessibility size={18} /></button>
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-64 rounded-2xl border border-line bg-white p-4 text-sm text-ink shadow-xl">
+        <div className="absolute right-0 z-50 mt-2 w-64 rounded-2xl border border-line bg-surface p-4 text-sm text-fg shadow-xl">
           <div className="mb-2 font-bold">Make it easier to use</div>
           <label className="flex items-center justify-between py-1.5">Larger text <input type="checkbox" checked={p.large} onChange={(e) => save({ ...p, large: e.target.checked })} /></label>
           <label className="flex items-center justify-between py-1.5">High contrast <input type="checkbox" checked={p.contrast} onChange={(e) => save({ ...p, contrast: e.target.checked })} /></label>

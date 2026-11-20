@@ -19,7 +19,7 @@ export function PageHeader({ eyebrow, title, sub, actions }: { eyebrow?: ReactNo
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0 max-w-3xl">
         {eyebrow && <div className="eyebrow mb-3">{eyebrow}</div>}
-        <h1 className="text-3xl font-bold tracking-tight text-ink sm:text-[2.6rem] sm:leading-tight">{title}</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-fg sm:text-[2.6rem] sm:leading-tight">{title}</h1>
         {sub && <p className="mt-2 text-base text-muted">{sub}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
@@ -34,7 +34,7 @@ export function Stat({ label, value, hint, icon: Icon, tone = 'orange' }: { labe
   return (
     <div className="card p-4" title={hint}>
       {Icon && <div className={`mb-3 grid size-9 place-items-center rounded-lg ${STAT_TONES[tone] ?? STAT_TONES.orange}`}><Icon size={18} /></div>}
-      <div className="text-2xl font-bold text-ink">{value}</div>
+      <div className="text-2xl font-bold text-fg">{value}</div>
       <div className="mt-0.5 text-[15px] text-muted">{label}</div>
       {hint && <div className="mt-0.5 text-xs text-muted/80">{hint}</div>}
     </div>
@@ -51,7 +51,7 @@ export function Avatar({ name, size = 32 }: { name: string; size?: number }) {
 export function Tabs({ items, active }: { items: { href: string; label: string; key: string }[]; active: string }) {
   return (
     <div role="tablist" className="mb-6 flex gap-1 overflow-x-auto rounded-xl bg-sand p-1">
-      {items.map((t) => <Link key={t.key} role="tab" aria-selected={t.key === active} href={t.href} className={`whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-semibold ${t.key === active ? 'bg-white text-ink shadow-sm' : 'text-muted hover:text-ink'}`}>{t.label}</Link>)}
+      {items.map((t) => <Link key={t.key} role="tab" aria-selected={t.key === active} href={t.href} className={`whitespace-nowrap rounded-lg px-3.5 py-2 text-sm font-semibold ${t.key === active ? 'bg-surface text-fg shadow-sm' : 'text-muted hover:text-fg'}`}>{t.label}</Link>)}
     </div>
   );
 }
@@ -89,8 +89,8 @@ export function StageTrack({ stages, current }: { stages: { key: string; label: 
 export function Info({ children, dark = false }: { children: ReactNode; dark?: boolean }) {
   return (
     <details className="group inline-block align-middle">
-      <summary className={`inline-grid size-5 cursor-pointer list-none place-items-center rounded-full border text-[11px] font-bold ${dark ? 'border-white/40 text-white/70 hover:text-white' : 'border-line text-muted hover:text-ink'}`} aria-label="What is this?">i</summary>
-      <div className="absolute right-0 z-30 mt-2 w-60 max-w-xs rounded-xl border border-line bg-white p-3 text-xs font-normal normal-case tracking-normal text-ink shadow-lg">{children}</div>
+      <summary className={`inline-grid size-5 cursor-pointer list-none place-items-center rounded-full border text-[11px] font-bold ${dark ? 'border-white/40 text-white/70 hover:text-white' : 'border-line text-muted hover:text-fg'}`} aria-label="What is this?">i</summary>
+      <div className="absolute right-0 z-30 mt-2 w-60 max-w-xs rounded-xl border border-line bg-surface p-3 text-xs font-normal normal-case tracking-normal text-fg shadow-lg">{children}</div>
     </details>
   );
 }

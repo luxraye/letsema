@@ -17,7 +17,7 @@ export function LoginForms({ next, notice }: { next: string; notice?: string }) 
       {notice && <p className="mb-4 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{notice}</p>}
       <div role="tablist" className="mb-5 grid grid-cols-3 gap-1 rounded-xl bg-sand p-1 text-sm font-semibold">
         {([['password', 'Password'], ['code', 'One-time code'], ['passkey', 'Fingerprint']] as const).map(([k, l]) => (
-          <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`rounded-lg py-2 ${tab === k ? 'bg-white shadow-sm' : 'text-muted'}`}>{l}</button>
+          <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`rounded-lg py-2 ${tab === k ? 'bg-surface shadow-sm' : 'text-muted'}`}>{l}</button>
         ))}
       </div>
       {tab === 'password' && (

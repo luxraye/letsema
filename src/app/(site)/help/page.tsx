@@ -21,7 +21,7 @@ export default async function Help() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
       <PageHeader eyebrow="Help" title="Answers, people and turnaround times" sub={`Search the questions below, chat with a consultant (Monday to Friday, ${String(CHAT_HOURS.open).padStart(2, '0')}:00 to ${CHAT_HOURS.close}:00), or report a problem and get a reference with a deadline.`} />
-      <nav className="mb-8 flex flex-wrap gap-2 text-sm">{[['#faq', 'Questions'], ['#regulators', 'Regulators'], ['#documents', 'Documents'], ['#turnaround', 'Turnaround times'], ['#support', 'Report a problem']].map(([h, l]) => <a key={h} href={h} className="chip border border-line bg-white !py-1.5">{l}</a>)}</nav>
+      <nav className="mb-8 flex flex-wrap gap-2 text-sm">{[['#faq', 'Questions'], ['#regulators', 'Regulators'], ['#documents', 'Documents'], ['#turnaround', 'Turnaround times'], ['#support', 'Report a problem']].map(([h, l]) => <a key={h} href={h} className="chip border border-line bg-surface !py-1.5">{l}</a>)}</nav>
 
       <section id="faq" className="mb-12 scroll-mt-24">
         <h2 className="mb-4 text-2xl font-bold">Questions people ask</h2>

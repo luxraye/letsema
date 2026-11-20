@@ -32,21 +32,21 @@ export function StudioPreview() {
       <div className="mx-auto grid max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4" role="tablist">
         {STEPS.map((s, i) => (
           <button key={s.label} type="button" role="tab" aria-selected={step === i} onClick={() => setStep(i)}
-            className={`flex items-center gap-3 rounded-2xl border bg-white p-3 text-left transition ${step === i ? 'border-[var(--brand)] shadow-[0_0_0_3px_rgba(224,80,24,.12)]' : 'border-line hover:border-stone-300'}`}>
-            <span className={`grid size-8 shrink-0 place-items-center rounded-lg ${step === i ? 'bg-[var(--brand)] text-white' : 'bg-sand text-ink'}`}><s.icon size={16} /></span>
+            className={`flex items-center gap-3 rounded-2xl border bg-surface p-3 text-left transition ${step === i ? 'border-[var(--brand)] shadow-[0_0_0_3px_rgba(224,80,24,.12)]' : 'border-line hover:border-stone-300'}`}>
+            <span className={`grid size-8 shrink-0 place-items-center rounded-lg ${step === i ? 'bg-[var(--brand)] text-white' : 'bg-sand text-fg'}`}><s.icon size={16} /></span>
             <span><span className="block text-[10px] font-bold uppercase tracking-wider">Step {i + 1}</span><span className="block text-xs font-bold">{s.label}</span></span>
           </button>
         ))}
       </div>
 
-      <div className="mx-auto mt-8 max-w-3xl rounded-3xl border border-line bg-white p-6 shadow-sm sm:p-8" role="tabpanel">
+      <div className="mx-auto mt-8 max-w-3xl rounded-3xl border border-line bg-surface p-6 shadow-sm sm:p-8" role="tabpanel">
         {step === 0 && <>
           <h3 className="text-lg font-bold">1. Start with a tested competition template</h3>
           <p className="mt-1 text-sm text-muted">Each template comes with stages, a form and a scoring rubric already filled in, so a new competition takes minutes.</p>
           <div className="mt-5 rounded-2xl border border-line bg-sand/40 p-4">
             <div className="grid gap-3 sm:grid-cols-3">
               {TEMPLATES.map((t, i) => (
-                <button key={t.name} type="button" onClick={() => setTpl(i)} aria-pressed={tpl === i} className={`rounded-xl border bg-white p-3 text-left transition ${tpl === i ? 'border-[var(--brand)]' : 'border-line opacity-70 hover:opacity-100'}`}>
+                <button key={t.name} type="button" onClick={() => setTpl(i)} aria-pressed={tpl === i} className={`rounded-xl border bg-surface p-3 text-left transition ${tpl === i ? 'border-[var(--brand)]' : 'border-line opacity-70 hover:opacity-100'}`}>
                   <span className="flex items-center justify-between text-sm font-bold">{t.name}{tpl === i && <Check size={15} className="text-[var(--brand)]" />}</span>
                   <span className="text-[11px] text-muted">{t.meta}</span>
                 </button>
@@ -59,7 +59,7 @@ export function StudioPreview() {
           <h3 className="text-lg font-bold">2. Set the dates and who can enter</h3>
           <p className="mt-1 text-sm text-muted">Stages run in order, each with its own dates. Eligibility is checked before anyone starts writing.</p>
           <ol className="mt-5 grid gap-2 sm:grid-cols-4">{STAGES.map(([l, n], i) => <li key={l} className={`rounded-xl border p-3 text-sm ${i === 0 ? 'border-[var(--brand)] bg-[var(--brand)]/5' : 'border-line'}`}><div className="text-[10px] font-bold uppercase text-muted">Phase {i + 1}</div><div className="font-bold">{l}</div><div className="text-xs text-muted">{n}</div></li>)}</ol>
-          <ul className="mt-4 flex flex-wrap gap-2 text-xs">{['Botswana citizens', 'Aged 18 to 35', 'At least 51% citizen-owned', 'Teams of 1 to 5'].map((r) => <li key={r} className="chip border border-line bg-white"><Check size={12} className="text-emerald-600" />{r}</li>)}</ul>
+          <ul className="mt-4 flex flex-wrap gap-2 text-xs">{['Botswana citizens', 'Aged 18 to 35', 'At least 51% citizen-owned', 'Teams of 1 to 5'].map((r) => <li key={r} className="chip border border-line bg-surface"><Check size={12} className="text-emerald-600" />{r}</li>)}</ul>
         </>}
         {step === 2 && <>
           <h3 className="text-lg font-bold">3. Choose how entries are scored</h3>

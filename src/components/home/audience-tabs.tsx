@@ -31,7 +31,7 @@ export function AudienceTabs() {
     <div>
       <div className="flex flex-wrap justify-center gap-2" role="tablist">
         {TABS.map((x, n) => (
-          <button key={x.key} type="button" role="tab" aria-selected={i === n} onClick={() => setI(n)} className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition ${i === n ? 'bg-[var(--brand)] text-white shadow' : 'bg-sand text-ink hover:bg-stone-200'}`}><x.icon size={15} />{x.key}</button>
+          <button key={x.key} type="button" role="tab" aria-selected={i === n} onClick={() => setI(n)} className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition ${i === n ? 'bg-[var(--brand)] text-white shadow' : 'bg-sand text-fg hover:bg-stone-200'}`}><x.icon size={15} />{x.key}</button>
         ))}
       </div>
       <div className="mt-8 grid items-center gap-8 rounded-3xl border border-line bg-sand/30 p-6 sm:p-10 lg:grid-cols-2" role="tabpanel">
@@ -39,7 +39,7 @@ export function AudienceTabs() {
           <div className="text-[11px] font-bold uppercase tracking-wider">{t.eyebrow}</div>
           <h3 className="mt-2 text-2xl font-bold leading-tight sm:text-3xl">{t.title}</h3>
           <ul className="mt-5 space-y-3">{t.points.map((p) => <li key={p} className="flex gap-3 text-sm"><CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-600" />{p}</li>)}</ul>
-          <div className="relative mt-5 flex items-start justify-between gap-3 rounded-2xl border border-line bg-white p-4"><div><div className="text-sm font-bold">{t.box[0]}</div><p className="text-xs text-muted">{t.box[1]}</p></div><Info>{t.box[1]}</Info></div>
+          <div className="relative mt-5 flex items-start justify-between gap-3 rounded-2xl border border-line bg-surface p-4"><div><div className="text-sm font-bold">{t.box[0]}</div><p className="text-xs text-muted">{t.box[1]}</p></div><Info>{t.box[1]}</Info></div>
           <Link href={t.cta[1]} className="btn-primary mt-6 !rounded-lg !px-5 !py-2.5 text-sm font-bold">{t.cta[0]} <ArrowRight size={15} /></Link>
         </div>
         <figure className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-lg">

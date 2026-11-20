@@ -10,8 +10,10 @@ export function SiteFooter() {
   ] as const;
   const partners = [['https://www.ceda.co.bw', 'CEDA'], ['https://www.cipa.co.bw', 'CIPA company registry'], ['https://www.lea.co.bw', 'Local Enterprise Authority'], ['https://www.bdih.co.bw', 'Botswana Digital & Innovation Hub']] as const;
   return (
-    <footer className="bg-ink text-white/75">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr_1.1fr] lg:px-8">
+    <footer className="relative overflow-hidden bg-ink text-white/75">
+      <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--t-brand-2)] to-transparent opacity-70" />
+      <div aria-hidden className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[60rem] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,var(--t-aura-1),transparent)]" />
+      <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr_1.1fr] lg:px-8">
         <div>
           <Logo dark sub />
           <p className="mt-4 max-w-xs text-[15px] leading-relaxed">One place for Batswana to submit ideas, be scored fairly, follow their application and get funded. A CEDA hackathon 2026 prototype; demo data is fictional.</p>

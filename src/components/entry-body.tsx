@@ -51,7 +51,7 @@ export async function Thread({ entryId, showInternal }: { entryId: string; showI
   const rows = await db.select({ m: schema.messages, author: schema.users.name, role: schema.users.role }).from(schema.messages).innerJoin(schema.users, eq(schema.users.id, schema.messages.authorId)).where(eq(schema.messages.entryId, entryId)).orderBy(asc(schema.messages.createdAt));
   const vis = rows.filter((r) => showInternal || !r.m.internal);
   if (!vis.length) return <p className="text-sm text-muted">No messages yet.</p>;
-  return <ul className="space-y-2">{vis.map(({ m, author, role }) => <li key={m.id} className={`rounded-xl p-3 text-sm ${m.internal ? 'border border-dashed border-amber-300 bg-amber-50' : m.kind === 'revision_request' ? 'bg-orange-50' : 'bg-sand/60'}`}><div className="text-xs text-muted"><b className="text-ink">{author}</b> · {role === 'innovator' ? 'applicant' : 'CEDA'}{m.internal && ' · internal note'}{m.kind === 'revision_request' && ' · changes requested'}</div>{m.body}</li>)}</ul>;
+  return <ul className="space-y-2">{vis.map(({ m, author, role }) => <li key={m.id} className={`rounded-xl p-3 text-sm ${m.internal ? 'border border-dashed border-amber-300 bg-amber-50' : m.kind === 'revision_request' ? 'bg-orange-50' : 'bg-sand/60'}`}><div className="text-xs text-muted"><b className="text-fg">{author}</b> · {role === 'innovator' ? 'applicant' : 'CEDA'}{m.internal && ' · internal note'}{m.kind === 'revision_request' && ' · changes requested'}</div>{m.body}</li>)}</ul>;
 }
 
 /** Tracking: every recorded action on this application, straight from the hash-chained audit log. */

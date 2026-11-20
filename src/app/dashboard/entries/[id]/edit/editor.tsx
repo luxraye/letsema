@@ -61,7 +61,7 @@ export function Editor({ entry, instance, files, revision }: { entry: Entry; ins
     <div>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div><div className="text-sm text-muted"><Link href={`/i/${instance.slug}`} className="hover:underline">{instance.name}</Link> · <span className="mono">{entry.ref}</span></div><h1 className="text-3xl font-bold">{entry.status === 'returned' ? 'Update and resubmit' : 'Your application'}</h1></div>
-        <div className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-sm shadow-sm" aria-live="polite">
+        <div className="flex items-center gap-2 rounded-full bg-surface px-3 py-1.5 text-sm shadow-sm" aria-live="polite">
           {save === 'saving' && <><Loader2 size={15} className="animate-spin" /> Saving…</>}
           {save === 'saved' && <><Check size={15} className="text-emerald-600" /> {savedAt ? `Saved ${savedAt}` : 'All changes saved'}</>}
           {save === 'offline' && <><CloudOff size={15} className="text-amber-600" /> Offline: saved on this device, will sync</>}
@@ -69,8 +69,8 @@ export function Editor({ entry, instance, files, revision }: { entry: Entry; ins
         </div>
       </div>
       {revision && <div className="mb-6 rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm"><div className="font-bold">CEDA asked for changes</div><p className="mt-1">{revision}</p><p className="mt-2 text-xs text-muted">Your last version is kept. Reviewers will see exactly what you changed.</p></div>}
-      <div className="mb-6"><div className="mb-1 flex justify-between text-xs font-semibold text-muted"><span>{pct}% of required parts done</span><span>Step {step + 1} of {steps.length}</span></div><div className="h-2 rounded-full bg-white"><div className="h-2 rounded-full bg-[var(--brand)] transition-all" style={{ width: `${pct}%` }} /></div></div>
-      <ol className="mb-6 grid grid-cols-4 gap-2 text-sm">{steps.map((s, i) => <li key={s}><button onClick={() => setStep(i)} className={`w-full rounded-xl border px-2 py-2 font-semibold ${i === step ? 'border-[var(--brand)] bg-white text-ink' : 'border-transparent text-muted hover:bg-white'}`}>{i + 1}. {s}</button></li>)}</ol>
+      <div className="mb-6"><div className="mb-1 flex justify-between text-xs font-semibold text-muted"><span>{pct}% of required parts done</span><span>Step {step + 1} of {steps.length}</span></div><div className="h-2 rounded-full bg-surface"><div className="h-2 rounded-full bg-[var(--brand)] transition-all" style={{ width: `${pct}%` }} /></div></div>
+      <ol className="mb-6 grid grid-cols-4 gap-2 text-sm">{steps.map((s, i) => <li key={s}><button onClick={() => setStep(i)} className={`w-full rounded-xl border px-2 py-2 font-semibold ${i === step ? 'border-[var(--brand)] bg-surface text-fg' : 'border-transparent text-muted hover:bg-surface'}`}>{i + 1}. {s}</button></li>)}</ol>
 
       <div className="card space-y-5 p-5 sm:p-6">
         {step === 0 && <>
