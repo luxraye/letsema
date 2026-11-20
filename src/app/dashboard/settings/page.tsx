@@ -16,7 +16,7 @@ export default async function Settings() {
   const keys = await db.select().from(schema.apiKeys).orderBy(desc(schema.apiKeys.createdAt));
   return (
     <div className="space-y-6">
-      <PageHeader title="Look and settings" sub="CEDA decides the layout colours, fonts and corner style. Changes apply to every page immediately, for everyone." />
+      <PageHeader title="Look and settings" sub="The built-in look is Burgundy, with a one-tap Azure switch for every visitor. Pick another preset or your own colours to override both, for everyone, straight away." />
       <ThemeForm theme={theme} presets={PRESETS} fonts={FONTS} />
       <section className="card p-5 text-sm">
         <h2 className="mb-1 text-lg font-bold">Live chat hours</h2>
