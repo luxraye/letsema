@@ -7,6 +7,7 @@ import type { InstanceDefinition, Role } from '@/db/schema';
 import { ROLES } from '@/db/schema';
 import { appendAudit } from '@/lib/audit';
 import { describeChanges, rulesHash, validateDefinition } from '@/lib/instances';
+import { DefinitionSchema, parseInstanceCode } from '@/lib/definition-code';
 import { requireUser } from '@/lib/session';
 import { standardDefinition, HACKATHON_RUBRIC } from '@/lib/catalogue';
 import { PRESETS, FONTS, type Theme } from '@/lib/settings';
@@ -42,6 +43,22 @@ export async function createInstance(_: AState, fd: FormData): Promise<AState> {
   redirect(`/dashboard/instances/${i.id}`);
 }
 
+/** Create a draft from a pasted JSON document (for IT staff). Same checks as the visual editor, then the normal draft flow. */
+export async function createInstanceFromCode(_: AState, fd: FormData): Promise<AState> {
+  const me = await requireUser({ perm: 'instance.manage' });
+  const { doc, errors } = parseInstanceCode(String(fd.get('code') ?? ''));
+  if (!doc) return { error: 'Fix these first:', errors };
+  const spaceId = me.role === 'partner_admin' ? me.spaceId! : String(fd.get('spaceId'));
+  const def = doc.definition;
+  let slug = slugify(doc.name);
+  const [clash] = await db.select({ id: schema.instances.id }).from(schema.instances).where(eq(schema.instances.slug, slug));
+  if (clash) slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
+  const [i] = await db.insert(schema.instances).values({ spaceId, slug, name: doc.name, tagline: doc.tagline, description: doc.description || doc.tagline, definition: def, rulesHash: rulesHash(def), status: 'draft', photo: doc.photo || '/photos/lab-drone.webp', createdById: me.id, opensAt: new Date(def.stages[0].starts), closesAt: new Date(def.stages.at(-1)!.ends) }).returning();
+  await db.insert(schema.instanceRoles).values({ userId: me.id, instanceId: i.id, role: 'organiser' });
+  await appendAudit({ actorId: me.id, actorName: me.name, action: 'instance.created', instanceId: i.id, detail: { name: doc.name, source: 'code', rulesHash: i.rulesHash } });
+  redirect(`/dashboard/instances/${i.id}`);
+}
+
 async function loadManaged(id: string) {
   const me = await requireUser({ perm: 'instance.manage' });
   const [i] = await db.select().from(schema.instances).where(eq(schema.instances.id, id)).limit(1);
@@ -54,7 +71,11 @@ async function loadManaged(id: string) {
 export async function saveDefinition(id: string, json: string, reason: string, meta: { name: string; tagline: string; description: string; photo: string }): Promise<AState> {
   const { me, i } = await loadManaged(id);
   let def: InstanceDefinition;
-  try { def = JSON.parse(json); } catch { return { error: 'Could not read the rules.' }; }
+  try {
+    const shape = DefinitionSchema.safeParse(JSON.parse(json));
+    if (!shape.success) return { error: 'Fix these first:', errors: shape.error.issues.slice(0, 12).map((x) => `${x.path.join('.') || 'rules'}: ${x.message}`) };
+    def = shape.data as InstanceDefinition;
+  } catch { return { error: 'Could not read the rules.' }; }
   const errors = validateDefinition(def);
   if (errors.length) return { error: 'Fix these first:', errors };
   const changes = describeChanges(i.definition, def);

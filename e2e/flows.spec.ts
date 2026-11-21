@@ -150,3 +150,25 @@ test('home: SDG goals and inclusion charts show live figures', async ({ page }) 
   await expect(page.getByRole('img', { name: /Innovators by gender: Women 28%/ })).toBeAttached();
   await expect(page.getByRole('img', { name: /Innovators by age: 18–24 28%/ })).toBeAttached();
 });
+
+test('instance as code: admin creates a draft from JSON, and the Studio code tab checks edits', async ({ page }) => {
+  await as(page, 'CEDA administrator');
+  await page.goto('/dashboard/instances/new');
+  await page.getByRole('tab', { name: /From code/ }).click();
+  const box = page.getByLabel('Competition as JSON');
+  const sample = JSON.parse(await box.inputValue());
+  sample.name = `Code-built Fund ${Date.now().toString(36)}`;
+  sample.definition.rubric[0].weight += 5;
+  await box.fill(JSON.stringify(sample, null, 2));
+  await expect(page.getByText(/weights must add up to 100%/i)).toBeVisible();
+  sample.definition.rubric[0].weight -= 5;
+  await box.fill(JSON.stringify(sample, null, 2));
+  await expect(page.getByText(/Valid: “Code-built Fund/)).toBeVisible();
+  await page.getByRole('button', { name: 'Create draft from code' }).click();
+  await page.waitForURL(/\/dashboard\/instances\/[0-9a-f-]{36}$/);
+  await page.getByRole('tab', { name: 'Code (JSON)' }).click();
+  const code = page.getByLabel('Competition as JSON');
+  await expect(code).toHaveValue(new RegExp(sample.name));
+  await code.fill('{ "name": "Broken" ');
+  await expect(page.getByText(/This is not valid JSON/)).toBeVisible();
+});

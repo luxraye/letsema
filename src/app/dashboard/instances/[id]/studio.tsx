@@ -1,10 +1,11 @@
 'use client';
 import { useState, useTransition } from 'react';
-import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Braces, CheckCircle2, Download, Plus, Trash2, Wand2 } from 'lucide-react';
 import type { Criterion, FieldDef, InstanceDefinition, Stage } from '@/db/schema';
 import { saveDefinition } from '@/app/actions/admin';
+import { parseInstanceCode, toCode } from '@/lib/definition-code';
 
-const TABS = ['Basics', 'Timeline', 'Application form', 'Score sheet', 'Who can enter', 'Prizes'] as const;
+const TABS = ['Basics', 'Timeline', 'Application form', 'Score sheet', 'Who can enter', 'Prizes', 'Code (JSON)'] as const;
 const key = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 30) || `q_${Date.now().toString(36)}`;
 
 export function StudioEditor({ id, live, def: initial, meta: m0, photos, rulesHash }: { id: string; live: boolean; def: InstanceDefinition; meta: { name: string; tagline: string; description: string; photo: string }; photos: string[]; rulesHash: string }) {
@@ -14,6 +15,12 @@ export function StudioEditor({ id, live, def: initial, meta: m0, photos, rulesHa
   const [reason, setReason] = useState('');
   const [msg, setMsg] = useState<{ ok?: string; error?: string; errors?: string[] } | null>(null);
   const [pending, start] = useTransition();
+  const [code, setCode] = useState<string | null>(null);
+  const shownCode = code ?? toCode({ ...meta, definition: def });
+  const check = parseInstanceCode(shownCode);
+  const codeDirty = code !== null && code !== toCode({ ...meta, definition: def });
+  const applyCode = () => { if (!check.doc) return; const { definition, ...rest } = check.doc; setDef(definition); setMeta(rest); setCode(null); setMsg({ ok: 'Code applied. Check the other tabs, then save.' }); };
+  const download = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([shownCode], { type: 'application/json' })); a.download = `${(meta.name || 'instance').toLowerCase().replace(/[^a-z0-9]+/g, '-')}.json`; a.click(); URL.revokeObjectURL(a.href); };
   const set = (p: Partial<InstanceDefinition>) => setDef({ ...def, ...p });
   const move = <T,>(xs: T[], i: number, d: number) => { const c = [...xs]; const j = i + d; if (j < 0 || j >= c.length) return c; [c[i], c[j]] = [c[j], c[i]]; return c; };
   const weight = def.rubric.reduce((s, c) => s + c.weight, 0);
@@ -26,7 +33,7 @@ export function StudioEditor({ id, live, def: initial, meta: m0, photos, rulesHa
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_18rem]">
       <div className="min-w-0">
-        <div role="tablist" className="mb-4 flex gap-1 overflow-x-auto rounded-xl bg-surface p-1 shadow-sm">{TABS.map((t) => <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold ${tab === t ? 'bg-ink text-white' : 'text-muted hover:text-fg'}`}>{t}</button>)}</div>
+        <div role="tablist" className="mb-4 flex gap-1 overflow-x-auto rounded-xl bg-surface p-1 shadow-sm">{TABS.map((t) => <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)} className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold ${tab === t ? 'bg-ink text-white' : 'text-muted hover:text-fg'}`}>{t === 'Code (JSON)' && <Braces size={14} />}{t}</button>)}</div>
         <div className="card space-y-4 p-5">
           {tab === 'Basics' && <>
             <div><label className="label" htmlFor="n">Name</label><input id="n" className="field" value={meta.name} onChange={(e) => setMeta({ ...meta, name: e.target.value })} /></div>
@@ -97,6 +104,25 @@ export function StudioEditor({ id, live, def: initial, meta: m0, photos, rulesHa
               <label className="text-sm"><span className="label">Largest team</span><input className="field" inputMode="numeric" value={def.team.max} onChange={(e) => set({ team: { ...def.team, max: Number(e.target.value) || 1 } })} /></label>
             </div>
           </>}
+          {tab === 'Code (JSON)' && <>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <p className="max-w-xl text-sm text-muted">For IT staff: the whole competition as one JSON document. Edit it here, or paste one from your own tools. It goes through the same checks as the visual editor, and applicants only ever see the finished forms.</p>
+              <div className="flex gap-2"><button type="button" className="btn-ghost !py-1.5 text-sm" onClick={download}><Download size={14} /> Download</button>{code !== null && <button type="button" className="btn-ghost !py-1.5 text-sm" onClick={() => setCode(null)}>Undo edits</button>}</div>
+            </div>
+            <textarea aria-label="Competition as JSON" spellCheck={false} value={shownCode} onChange={(e) => setCode(e.target.value)} className="field mono min-h-[28rem] whitespace-pre !text-[12.5px] leading-relaxed" />
+            {check.doc
+              ? <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900"><span className="flex items-center gap-2"><CheckCircle2 size={16} /> Valid: {check.doc.definition.form.length} questions, {check.doc.definition.rubric.length} scoring criteria, {check.doc.definition.stages.length} stages.</span>{codeDirty && <button type="button" onClick={applyCode} className="btn-primary !py-1.5 text-sm"><Wand2 size={14} /> Apply to the editor</button>}</div>
+              : <div role="alert" className="rounded-xl bg-rose-50 p-3 text-sm text-rose-900"><b>Not ready yet:</b><ul className="mt-1 list-disc pl-5">{check.errors.map((e) => <li key={e} className="mono text-[12.5px]">{e}</li>)}</ul></div>}
+            <details className="text-sm"><summary className="cursor-pointer font-semibold">What goes in the document</summary>
+              <ul className="mt-2 space-y-1 text-muted">
+                <li><code className="mono">name</code>, <code className="mono">tagline</code>, <code className="mono">description</code>, <code className="mono">photo</code>: what applicants see first.</li>
+                <li><code className="mono">definition.stages</code>: dates as YYYY-MM-DD. Stages keyed apply, register, build or submit accept entries.</li>
+                <li><code className="mono">definition.form</code>: questions; type is text, textarea, number, select, url or file.</li>
+                <li><code className="mono">definition.rubric</code>: scoring criteria; weights must add up to 100.</li>
+                <li><code className="mono">definition.eligibility</code>, <code className="mono">team</code>, <code className="mono">reviewersPerEntry</code>, <code className="mono">shortlistSize</code>, <code className="mono">prizes</code>, <code className="mono">sectors</code>.</li>
+              </ul>
+            </details>
+          </>}
           {tab === 'Prizes' && <>
             {def.prizes.map((p, i) => <div key={i} className="grid grid-cols-[1fr_9rem_auto] gap-2"><input className="field" aria-label="Place" value={p.place} onChange={(e) => set({ prizes: def.prizes.map((x, j) => (j === i ? { ...x, place: e.target.value } : x)) })} /><input className="field" aria-label="Amount (Pula)" inputMode="numeric" value={p.amount} onChange={(e) => set({ prizes: def.prizes.map((x, j) => (j === i ? { ...x, amount: Number(e.target.value) || 0 } : x)) })} /><button type="button" className="btn-ghost !px-2" aria-label="Remove" onClick={() => set({ prizes: def.prizes.filter((_, j) => j !== i) })}><Trash2 size={14} /></button></div>)}
             <button type="button" className="btn-ghost" onClick={() => set({ prizes: [...def.prizes, { place: `${def.prizes.length + 1}`, amount: 0 }] })}><Plus size={16} /> Add prize</button>
@@ -111,6 +137,7 @@ export function StudioEditor({ id, live, def: initial, meta: m0, photos, rulesHa
           <button onClick={save} disabled={pending || !dirty} className="btn-primary w-full">{pending ? 'Saving…' : live ? 'Publish new version' : 'Save draft'}</button>
           {msg?.ok && <p className="rounded-lg bg-emerald-50 p-2 text-emerald-900">{msg.ok}</p>}
           {msg?.error && <div className="rounded-lg bg-rose-50 p-2 text-rose-900">{msg.error}{msg.errors && <ul className="mt-1 list-disc pl-4">{msg.errors.map((e) => <li key={e}>{e}</li>)}</ul>}</div>}
+          {codeDirty && <p className="rounded-lg bg-amber-50 p-2 text-xs text-amber-900">You have JSON edits that are not applied yet. Open Code (JSON) and press Apply first.</p>}
           {!dirty && <p className="text-xs text-muted">No unsaved changes.</p>}
         </div>
       </aside>
