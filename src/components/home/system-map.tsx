@@ -53,6 +53,8 @@ export function SystemMap() {
             return <line key={n.key} x1="200" y1="150" x2={200 + 118 * Math.cos(a)} y2={150 + 118 * Math.sin(a)} stroke={active === n.key ? n.tone : 'rgba(255,255,255,.12)'} strokeDasharray="2 4" strokeWidth={active === n.key ? 1.5 : 1} />;
           })}
         </svg>
+        {/* Pulses that spread evenly from behind the core */}
+        <span aria-hidden className="core-pulse" /><span aria-hidden className="core-pulse" style={{ animationDelay: '-2s' }} /><span aria-hidden className="core-pulse" style={{ animationDelay: '-4s' }} />
         <button type="button" onClick={() => { setPlaying(false); setActive(null); }} className="absolute left-1/2 top-1/2 grid size-32 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-gradient-to-br from-[#e8401c] via-[#f06a1c] to-amber text-center text-white shadow-[0_0_70px_rgba(240,96,32,.6)] ring-4 ring-white/10 transition hover:scale-105">
           <span><span className="mx-auto mb-1 grid size-10 place-items-center rounded-full bg-white/20"><Compass size={22} /></span><span className="block text-[11px] font-bold uppercase tracking-wide">CEDA Idea Engine</span><span className="block text-[10px] text-white/80">Core Map</span></span>
         </button>

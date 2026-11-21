@@ -122,6 +122,9 @@ test('home: job cards flip to explain, sector tiles open that sector', async ({ 
   await page.getByRole('button', { name: /Evaluate fairly/ }).first().click();
   await expect(page.locator('.flip[data-flipped]')).toHaveCount(1);
   await expect(page.getByText('A panel compares the scores and votes on the winners')).toBeVisible();
+  // Tapping the card body again flips it back.
+  await page.getByRole('button', { name: 'Flip Evaluate fairly back' }).click();
+  await expect(page.locator('.flip[data-flipped]')).toHaveCount(0);
   await page.getByRole('link', { name: /Digital & technology/ }).first().click();
   await expect(page.getByRole('heading', { name: 'Competitions open to Digital & technology' })).toBeVisible();
 });

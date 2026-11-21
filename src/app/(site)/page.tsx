@@ -132,7 +132,7 @@ export default async function Home() {
 
       {/* Interactive system map */}
       <section className="relative overflow-hidden bg-ink py-20 text-white">
-        <Ambient silk={false} />
+        <Ambient silk={false} ripples={false} />
         <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="reveal mb-8 text-center">
             <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber">Interactive system map</span>
