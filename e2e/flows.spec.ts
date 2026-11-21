@@ -142,3 +142,11 @@ test('sign-in: roles are grouped into three dropdowns, one open at a time', asyn
   await page.getByRole('button', { name: /^Innovator/ }).click();
   await page.waitForURL('**/dashboard**');
 });
+
+test('home: SDG goals and inclusion charts show live figures', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Built Around the 2030 Goals' })).toBeVisible();
+  await expect(page.getByText(/% of registered innovators are women/)).toBeVisible();
+  await expect(page.getByRole('img', { name: /Registered innovators by gender: Women \d+%/ })).toBeAttached();
+  await expect(page.getByRole('img', { name: /Registered innovators by age: 18–24 \d+%/ })).toBeAttached();
+});

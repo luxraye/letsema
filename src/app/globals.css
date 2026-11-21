@@ -216,6 +216,10 @@ a.card:hover, a[data-spot]:hover { transform: translateY(-3px); border-color: co
 @keyframes drift { to { transform: translate3d(6vmax, 4vmax, 0) scale(1.12); } }
 @keyframes silk { to { transform: translate3d(10%, 18px, 0) rotate(-2deg); } }
 @keyframes rise-up { 10% { opacity: 0.9; } 85% { opacity: 0.5; } to { transform: translateY(-80vh); opacity: 0; } }
+/* Inclusion charts (colours checked for colour-blind separation on each look's surface). */
+:root { --viz-women: #f0507f; --viz-men: #b98226; --viz-na: #6e5a64; --viz-age-1: #ffc2d4; --viz-age-2: #ff8db0; --viz-age-3: #e0457a; --viz-age-4: #a8204f; }
+:root[data-theme='azure'] { --viz-women: #0a6cff; --viz-men: #d9561f; --viz-na: #a3adbd; --viz-age-1: #a9d4ff; --viz-age-2: #5aa8ff; --viz-age-3: #0a6cff; --viz-age-4: #0047ab; }
+
 /* System map: rings that spread from the centre of the core. */
 .core-pulse { position: absolute; left: 50%; top: 50%; width: 8rem; height: 8rem; margin: -4rem 0 0 -4rem; border-radius: 50%; border: 1.5px solid var(--t-brand-2); opacity: 0; pointer-events: none; }
 :root[data-theme='azure'] .core-pulse { border-color: rgba(160, 220, 255, 0.55); }
