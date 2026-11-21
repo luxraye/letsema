@@ -17,14 +17,14 @@ const ICONS = [Lightbulb, ClipboardList, Gavel, Eye, Headphones, SlidersHorizont
 
 export function DemoAccounts({ next, compact = false }: { next?: string; compact?: boolean }) {
   return (
-    <div className={`grid gap-2 ${compact ? '' : 'sm:grid-cols-2'}`}>
+    <div className={`grid grid-cols-1 gap-2 ${compact ? '' : 'sm:grid-cols-2'}`}>
       {DEMO.map((a, n) => {
         const Icon = ICONS[n] ?? Lightbulb;
         return (
-        <form key={a.email} action={demoLogin.bind(null, a.email, next ?? '/dashboard')}>
+        <form key={a.email} className="min-w-0" action={demoLogin.bind(null, a.email, next ?? '/dashboard')}>
           <button className="flex w-full items-center gap-3 rounded-xl border border-line bg-surface p-3 text-left transition hover:border-[var(--brand)] hover:bg-sand/50">
             <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[var(--brand)]/10 text-[var(--brand)]"><Icon size={16} /></span>
-            <span className="min-w-0"><span className="block text-[15px] font-medium">{a.role}</span><span className="block truncate text-[13px] text-muted">{a.who}: {a.does.charAt(0).toLowerCase() + a.does.slice(1)}</span></span>
+            <span className="min-w-0"><span className="block text-[15px] font-medium">{a.role}</span><span className="block text-[13px] leading-snug text-muted">{a.who}: {a.does.charAt(0).toLowerCase() + a.does.slice(1)}</span></span>
           </button>
         </form>
         );
