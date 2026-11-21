@@ -5,7 +5,9 @@ const PUBLIC = ['/', '/how-it-works', '/judges', '/instances', '/eligibility', '
 async function as(page: Page, who: string) {
   await page.context().clearCookies();
   await page.goto('/login');
-  await page.locator('form', { hasText: who }).first().getByRole('button').click();
+  const form = page.locator('form', { hasText: who }).first();
+  if (!(await form.isVisible())) await page.locator('details', { has: form }).locator('summary').click();
+  await form.getByRole('button').click();
   await page.waitForURL('**/dashboard**');
 }
 
@@ -24,8 +26,7 @@ const ROLES: [string, string[]][] = [
   ['Evaluator', ['/dashboard/review']],
   ['Adjudication panel', ['/dashboard/panel', '/dashboard/pipeline']],
   ['Committee observer', ['/dashboard/pipeline', '/dashboard/reports']],
-  ['CEDA consultant', ['/dashboard/chat', '/dashboard/support']],
-  ['CEDA administrator', ['/dashboard/screening', '/dashboard/pipeline', '/dashboard/reports', '/dashboard/instances', '/dashboard/instances/new', '/dashboard/content', '/dashboard/users', '/dashboard/audit', '/dashboard/privacy']],
+  ['CEDA administrator', ['/dashboard/screening', '/dashboard/chat', '/dashboard/support', '/dashboard/pipeline', '/dashboard/reports', '/dashboard/instances', '/dashboard/instances/new', '/dashboard/content', '/dashboard/users', '/dashboard/audit', '/dashboard/privacy']],
   ['Partner admin (BDIH)', ['/dashboard/instances', '/dashboard/pipeline']],
   ['Super administrator', ['/dashboard/settings', '/dashboard/audit?tamper=1']],
 ];
@@ -47,7 +48,7 @@ test('innovator detail pages open', async ({ page }) => {
 
 test('admin detail pages open', async ({ page }) => {
   await as(page, 'CEDA administrator');
-  for (const list of ['/dashboard/screening', '/dashboard/pipeline', '/dashboard/instances']) {
+  for (const list of ['/dashboard/screening', '/dashboard/chat', '/dashboard/support', '/dashboard/pipeline', '/dashboard/instances']) {
     await page.goto(list);
     const links = await page.locator('main a[href^="/dashboard/"]').evaluateAll((as) => [...new Set(as.map((a) => (a as HTMLAnchorElement).getAttribute('href')!))].filter((h) => /\/[0-9a-f-]{36}/.test(h)));
     for (const l of links.slice(0, 4)) await healthy(page, l);
