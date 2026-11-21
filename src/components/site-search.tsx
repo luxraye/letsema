@@ -7,7 +7,7 @@ type Hit = { href: string; title: string; text: string; group: string };
 
 const START: Hit[] = [
   { href: '/instances', title: 'Open competitions', text: 'Calls, hackathons and accelerators you can enter now', group: 'Popular' },
-  { href: '/eligibility', title: 'Am I eligible?', text: 'A 30-second check before you start', group: 'Popular' },
+  { href: '/eligibility', title: 'Which competitions can I enter?', text: 'Each competition has its own rules; check them all at once', group: 'Popular' },
   { href: '/track', title: 'Track an application', text: 'Follow any reference, get free alerts', group: 'Popular' },
   { href: '/judges', title: 'How to judge this portal', text: 'Each scoring criterion, one click away', group: 'Popular' },
   { href: '/dial', title: 'No data? Dial *161#', text: 'Check your application from any phone', group: 'Popular' },

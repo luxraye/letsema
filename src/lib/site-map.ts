@@ -4,7 +4,7 @@ import { Trophy, Sparkles, BookOpen, Handshake, ClipboardCheck, Search, Gauge, B
 export const MENUS = [
   { label: 'Compete', icon: Trophy, items: [
     { href: '/instances', title: 'Open competitions', text: 'Calls, hackathons and accelerators you can enter now', icon: Trophy },
-    { href: '/eligibility', title: 'Am I eligible?', text: 'A 30-second check before you start', icon: ClipboardCheck },
+    { href: '/eligibility', title: 'Which can I enter?', text: 'Each competition has its own rules; check them all at once', icon: ClipboardCheck },
     { href: '/track', title: 'Track an application', text: 'Follow any reference, get free alerts', icon: Search },
   ] },
   { label: 'Showcase', icon: Sparkles, items: [

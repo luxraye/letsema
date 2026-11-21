@@ -6,7 +6,7 @@ const TN: Record<string, string> = {
   'Sign in': 'Tsena', 'Create account': 'Ikwadise', 'Dashboard': 'Tafole', 'Sign out': 'Tswa', 'Apply': 'Ikwadisetsa',
   'My applications': 'Dikopo tsa me', 'Notifications': 'Dikitsiso', 'Profile': 'Porofaele', 'Reports': 'Dipego',
   'Funded': 'Ba ba thusitsweng', 'Status': 'Seemo', 'Privacy': 'Sephiri', 'For judges': 'Ba ba atlholang', 'Live chat': 'Puisano',
-  'Am I eligible?': 'A ke a tshwanela?', 'Am I Eligible?': 'A ke a tshwanela?', 'See Open Competitions': 'Bona dikgaisano tse di butsweng',
+  'Am I eligible?': 'A ke a tshwanela?', 'Am I Eligible?': 'A ke a tshwanela?', 'Which Can I Enter?': 'Ke ka tsenela efe?', 'See Open Competitions': 'Bona dikgaisano tse di butsweng',
   'Compete': 'Gaisana', 'Showcase': 'Bontsha', 'Learn': 'Ithute', 'Partners': 'Balekane', '5-Min Judges’ Tour': 'Loeto la baatlhodi',
 };
 export async function getLang() { return ((await cookies()).get('lang')?.value === 'tn' ? 'tn' : 'en') as 'en' | 'tn'; }

@@ -10,7 +10,7 @@ const JOBS = [
     id: 'apply', icon: Inbox, title: '1. Take in submissions', photo: '/photos/young-makers.webp',
     lead: 'Every application lands in one place, in one shape, with nothing lost in email.',
     steps: [
-      'Check you are eligible in 30 seconds, then create a free account.',
+      'Create a free account, then check each competition’s own entry rules before you apply.',
       'Fill in the form in four short steps. It saves as you type, even if your connection drops.',
       'Upload documents. We check each file is what it says it is, and warn you if it looks like it holds a password or ID number by mistake.',
       'Submit. Your answers and files are sealed with a fingerprint, you get a reference like CEDA-26-0101, and a receipt by email.',

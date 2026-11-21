@@ -9,7 +9,7 @@ const TABS = [
   { key: 'Innovators', icon: Users, eyebrow: 'For innovators', title: 'Enter with confidence: judged on merit, not on who you know',
     points: ['Every application gets a sealed receipt with a fingerprint of exactly what you sent and when.', 'Evaluators score without seeing your name or your company.', 'Follow every step on the web, by free SMS alerts, or by dialling *161# without data.'],
     box: ['Sealed receipt and blind scoring', 'Your identity is hidden from evaluators, and your receipt proves what you submitted.'],
-    cta: ['Check My Eligibility & Apply', '/eligibility'], photo: '/photos/team-coding.webp', caption: 'A software team at work' },
+    cta: ['Find Competitions I Can Enter', '/eligibility'], photo: '/photos/team-coding.webp', caption: 'A software team at work' },
   { key: 'Evaluators', icon: Scale, eyebrow: 'For evaluators', title: 'Score fairly, and see how your marking compares',
     points: ['Declare any conflict before you see an application; a conflicted evaluator is replaced automatically.', 'Score each criterion against a written guide, with a note for the innovator.', 'See if you mark harder or softer than others. Calibration evens it out before ranking.'],
     box: ['Calibrated ranking', 'Applications where evaluators disagree by more than 20 points are flagged for the panel.'],

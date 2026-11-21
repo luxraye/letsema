@@ -94,7 +94,7 @@ export async function submitEntry(entryId: string) {
   if (e.team.length < def.team.min || e.team.length > def.team.max) problems.push(`Teams must have ${def.team.min} to ${def.team.max} members.`);
   if (problems.length) return { error: 'Please fix these first:', problems };
 
-  const elig = checkEligibility(def, { age: ageFrom(me.dateOfBirth), citizen: !!me.omang, youthShare: me.youthShare ?? undefined, cipa: !!me.cipaNumber, staff: me.organisation === 'CEDA' });
+  const elig = checkEligibility(def, { age: ageFrom(me.dateOfBirth), citizen: !!me.omang, youthShare: me.youthShare ?? undefined, cipa: !!me.cipaNumber, staff: me.organisation === 'CEDA', sector: e.sector ?? undefined });
   const checks = [
     { key: 'complete', label: 'All required answers given', status: 'pass' as const, detail: 'Every required question answered and within word limits.' },
     { key: 'files', label: 'Uploaded files', status: 'pass' as const, detail: files.length ? files.map((f) => `${f.name} (${f.sha256.slice(0, 8)}…)`).join(', ') : 'No files needed.' },

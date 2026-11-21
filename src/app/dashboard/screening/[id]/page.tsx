@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { eq } from 'drizzle-orm';
-import { CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, XCircle, CircleHelp } from 'lucide-react';
 import { db, schema } from '@/db';
 import { requireUser } from '@/lib/session';
 import { StatusBadge } from '@/components/ui';
@@ -20,7 +20,7 @@ export default async function ScreenOne({ params }: { params: Promise<{ id: stri
   if (!row || (me.role === 'partner_admin' && row.i.spaceId !== me.spaceId)) notFound();
   const { e, i, u } = row;
   const checks = await db.select().from(schema.checks).where(eq(schema.checks.entryId, id));
-  const elig = checkEligibility(i.definition, { age: ageFrom(u.dateOfBirth), citizen: !!u.omang, youthShare: u.youthShare ?? undefined, cipa: !!u.cipaNumber, staff: u.organisation === 'CEDA' });
+  const elig = checkEligibility(i.definition, { age: ageFrom(u.dateOfBirth), citizen: !!u.omang, youthShare: u.youthShare ?? undefined, cipa: !!u.cipaNumber, staff: u.organisation === 'CEDA', sector: e.sector ?? undefined });
   const act = screen.bind(null, id);
   const say = postMessage.bind(null, id);
   return (
@@ -34,7 +34,7 @@ export default async function ScreenOne({ params }: { params: Promise<{ id: stri
             <div className="font-bold">Applicant</div>
             <div className="mt-1">{u.name} · {u.district ?? '–'}</div><div className="text-muted">{u.organisation ?? '–'} · CIPA {u.cipaNumber ?? 'missing'} · youth-owned {u.youthShare ?? '?'}%</div>
             <div className="mt-3 font-bold">Eligibility from profile</div>
-            <ul className="mt-1 space-y-1">{elig.reasons.map((r) => <li key={r.text} className="flex items-center gap-2">{r.ok ? <CheckCircle2 size={15} className="text-emerald-600" /> : <XCircle size={15} className="text-rose-600" />}{r.text}</li>)}</ul>
+            <ul className="mt-1 space-y-1">{elig.reasons.map((r) => <li key={r.text} className="flex items-center gap-2">{r.ok ? <CheckCircle2 size={15} className="text-emerald-600" /> : r.unknown ? <CircleHelp size={15} className="text-amber-600" /> : <XCircle size={15} className="text-rose-600" />}{r.text}{r.unknown && <span className="text-xs text-muted">(not in profile; confirm with applicant)</span>}</li>)}</ul>
             <div className="mt-3 font-bold">Automatic checks</div>
             <ul className="mt-1 space-y-1">{checks.map((c) => <li key={c.id} className="flex gap-2">{c.status === 'pass' ? <CheckCircle2 size={15} className="mt-0.5 shrink-0 text-emerald-600" /> : <AlertTriangle size={15} className="mt-0.5 shrink-0 text-amber-600" />}<span>{c.label}<span className="block text-xs text-muted">{c.detail}</span></span></li>)}</ul>
           </div>
