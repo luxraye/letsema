@@ -172,3 +172,24 @@ test('instance as code: admin creates a draft from JSON, and the Studio code tab
   await code.fill('{ "name": "Broken" ');
   await expect(page.getByText(/This is not valid JSON/)).toBeVisible();
 });
+
+test('eligibility: each competition has its own rules, and the finder judges each one separately', async ({ page }) => {
+  await page.goto('/eligibility');
+  await expect(page.getByRole('heading', { name: 'Which competitions can I enter?' })).toBeVisible();
+  const card = (slug: string) => page.locator(`[data-comp="${slug}"]`);
+  await expect(card('ceda-women-enterprise-2026')).toContainText('At least 51% owned by women');
+  await expect(card('youth-innovation-ideas-2026')).not.toContainText('owned by women');
+  await page.getByRole('group', { name: 'Are you a citizen of Botswana?' }).getByText('Yes').click();
+  await page.getByLabel('How old are you?').fill('24');
+  await page.getByLabel('Where is your business today?').selectOption('idea');
+  await expect(card('youth-innovation-ideas-2026')).toHaveAttribute('data-state', 'yes');
+  await expect(card('ceda-women-enterprise-2026')).toHaveAttribute('data-state', 'no');
+  await expect(page.getByText(/You can enter \d+ of \d+ open competitions/)).toBeVisible();
+
+  await page.goto('/i/ceda-women-enterprise-2026');
+  await expect(page.getByRole('heading', { name: 'Can I enter this competition?' })).toBeVisible();
+  await expect(page.getByText('These rules are set for CEDA Women in Enterprise Fund 2026 only', { exact: false })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Do women own at least 51% of the business?' })).toBeVisible();
+  await page.goto('/i/youth-innovation-ideas-2026');
+  await expect(page.getByRole('group', { name: 'Do women own at least 51% of the business?' })).toHaveCount(0);
+});
