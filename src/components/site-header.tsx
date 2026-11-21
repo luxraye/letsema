@@ -30,7 +30,7 @@ export async function SiteHeader() {
           </div>
         </div>
       </div>
-      <header className="sticky top-0 z-40 h-0 px-2 sm:px-4 [&>div]:mt-2">
+      <header className="sticky top-0 z-40 h-0 px-2 sm:px-4 [&>div]:translate-y-2">
         <div className="glass-dark mx-auto flex h-14 max-w-7xl items-center gap-5 rounded-2xl !bg-ink/70 px-3 text-white sm:px-4">
           <Link href="/" aria-label="CEDA Innovation Portal home" className="shrink-0 transition hover:scale-[1.03]"><Logo dark /></Link>
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Main">
