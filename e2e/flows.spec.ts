@@ -94,6 +94,18 @@ test('home: system map opens a branch and lists its sections', async ({ page }) 
   await expect(page.getByRole('link', { name: /Audit trail anyone can check/ }).first()).toBeVisible();
 });
 
+test('home: on a laptop screen the map explainer opens beside the branch, with no scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await page.goto('/');
+  await expect(page.getByText('Designed by Local Grow Pty Ltd')).toBeVisible();
+  await page.getByRole('heading', { name: 'Explore the Entire Platform' }).scrollIntoViewIfNeeded();
+  const judge = page.getByRole('button', { name: /^Judge/ }).first();
+  await judge.click();
+  await expect(page.locator('#map-explainer')).toContainText('scored blind');
+  await expect(page.locator('#map-explainer')).toBeInViewport();
+  await expect(judge).toBeInViewport();
+});
+
 test('dial *161#: track an application without data', async ({ page }) => {
   await page.goto('/dial');
   for (const k of ['*', '1', '6', '1', '#']) await page.getByRole('button', { name: k, exact: true }).click();
@@ -171,4 +183,25 @@ test('instance as code: admin creates a draft from JSON, and the Studio code tab
   await expect(code).toHaveValue(new RegExp(sample.name));
   await code.fill('{ "name": "Broken" ');
   await expect(page.getByText(/This is not valid JSON/)).toBeVisible();
+});
+
+test('eligibility: each competition has its own rules, and the finder judges each one separately', async ({ page }) => {
+  await page.goto('/eligibility');
+  await expect(page.getByRole('heading', { name: 'Which competitions can I enter?' })).toBeVisible();
+  const card = (slug: string) => page.locator(`[data-comp="${slug}"]`);
+  await expect(card('ceda-women-enterprise-2026')).toContainText('At least 51% owned by women');
+  await expect(card('youth-innovation-ideas-2026')).not.toContainText('owned by women');
+  await page.getByRole('group', { name: 'Are you a citizen of Botswana?' }).getByText('Yes').click();
+  await page.getByLabel('How old are you?').fill('24');
+  await page.getByLabel('Where is your business today?').selectOption('idea');
+  await expect(card('youth-innovation-ideas-2026')).toHaveAttribute('data-state', 'yes');
+  await expect(card('ceda-women-enterprise-2026')).toHaveAttribute('data-state', 'no');
+  await expect(page.getByText(/You can enter \d+ of \d+ open competitions/)).toBeVisible();
+
+  await page.goto('/i/ceda-women-enterprise-2026');
+  await expect(page.getByRole('heading', { name: 'Can I enter this competition?' })).toBeVisible();
+  await expect(page.getByText('These rules are set for CEDA Women in Enterprise Fund 2026 only', { exact: false })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Do women own at least 51% of the business?' })).toBeVisible();
+  await page.goto('/i/youth-innovation-ideas-2026');
+  await expect(page.getByRole('group', { name: 'Do women own at least 51% of the business?' })).toHaveCount(0);
 });
