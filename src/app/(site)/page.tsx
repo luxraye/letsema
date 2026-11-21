@@ -23,8 +23,8 @@ import { JobCards } from '@/components/home/job-cards';
 export const dynamic = 'force-dynamic';
 
 const STEPS = [
-  { n: '01', h: 'Check', p: 'See if you qualify in 30 seconds, before you write a word.', icon: CheckCircle2, tile: 'border-emerald-200 bg-emerald-50 text-emerald-600', href: '/eligibility', cta: 'Check My Eligibility',
-    more: ['Open to Botswana citizens; youth calls are for ages 18 to 35.', 'Companies need at least 51% citizen ownership.', 'You get an answer straight away, without creating an account.'], info: 'The checker uses the same rules as the competition, so a yes here means you can enter.' },
+  { n: '01', h: 'Check', p: 'Each competition has its own rules. See which ones you can enter before you write a word.', icon: CheckCircle2, tile: 'border-emerald-200 bg-emerald-50 text-emerald-600', href: '/eligibility', cta: 'Find Competitions I Can Enter',
+    more: ['Rules belong to each competition: a youth ideas call may be for ages 18 to 35, a growth fund may need a CIPA-registered business.', 'Answer a few questions once and see every open competition you qualify for.', 'You get an answer straight away, without creating an account.'], info: 'The checker uses each competition’s own published rules, so a yes there means you can enter that one.' },
   { n: '02', h: 'Apply', p: 'Submit your idea, team and documents. Your work saves as you type.', icon: FilePen, tile: 'border-amber-200 bg-amber-50 text-amber-600', href: '/instances', cta: 'Browse Open Calls',
     more: ['Four short steps, in plain words, on any phone.', 'Files are checked on upload, and you are warned if one looks like it holds an ID number by mistake.', 'On submit you get a sealed receipt and a reference like CEDA-26-0101.'], info: 'If evaluators ask for changes, you resubmit in the same place and they see exactly what you changed.' },
   { n: '03', h: 'Track', p: 'Follow your application live at every step with your reference.', icon: Compass, tile: 'border-orange-200 bg-orange-50 text-[var(--brand)]', href: '/track', cta: 'Track My Progress',
@@ -80,7 +80,7 @@ export default async function Home() {
             <p className="rise-3 mt-6 max-w-xl text-lg text-white/80">Enter CEDA competitions online, see exactly how you’ll be judged, and follow your application live at every step, on any phone.</p>
             <div className="rise-3 mt-8 flex flex-wrap items-center gap-3">
               <Link href="/instances" className="btn-primary !rounded-xl !px-6 !py-3.5 text-[15px] font-bold">{tr('See Open Competitions')} <ArrowRight size={18} /></Link>
-              <Link href="/eligibility" className="btn-dark !rounded-xl !px-5 !py-3.5 text-[15px] font-bold">{tr('Am I Eligible?')} <span className="text-white/60">30s</span></Link>
+              <Link href="/eligibility" className="btn-dark !rounded-xl !px-5 !py-3.5 text-[15px] font-bold">{tr('Which Can I Enter?')}</Link>
             </div>
             <Link href="/judges" className="rise-3 mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-amber hover:text-white"><Compass size={15} /> Judging the hackathon? Take the 5-minute tour <ArrowRight size={14} /></Link>
           </div>
@@ -250,8 +250,8 @@ export default async function Home() {
             <div className="relative max-w-2xl p-8 sm:p-16">
               <span className="rounded-full border border-amber/50 bg-amber/15 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber">Start today</span>
               <h2 className="mt-5 text-3xl font-bold leading-tight sm:text-[2.6rem]">Turn your innovation into a funded commercial enterprise.</h2>
-              <p className="mt-4 text-lg text-white/80">Check your eligibility in 30 seconds, submit your pitch, and follow your application at every step.</p>
-              <div className="mt-7 flex flex-wrap gap-3"><Link href="/eligibility" className="btn-primary !rounded-lg !px-6 !py-3 font-bold">Check My Eligibility <ArrowRight size={16} /></Link><Link href="/register" className="btn-dark !rounded-lg !px-6 !py-3 font-bold">Create a free account</Link></div>
+              <p className="mt-4 text-lg text-white/80">See which competitions you can enter, submit your pitch, and follow your application at every step.</p>
+              <div className="mt-7 flex flex-wrap gap-3"><Link href="/eligibility" className="btn-primary !rounded-lg !px-6 !py-3 font-bold">Find Competitions I Can Enter <ArrowRight size={16} /></Link><Link href="/register" className="btn-dark !rounded-lg !px-6 !py-3 font-bold">Create a free account</Link></div>
               <div className="mt-8 flex items-start gap-3 border-t border-white/15 pt-5 text-sm text-white/80"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-amber/20 text-amber"><Phone size={15} /></span><p><b className="text-white">No internet data?</b> Dial <Link href="/dial" className="mono rounded bg-amber/20 px-1.5 py-0.5 font-bold text-amber">*161#</Link> from any phone to check your application and open competitions, free of charge.</p></div>
             </div>
           </div>

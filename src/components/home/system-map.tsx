@@ -5,7 +5,7 @@ import { Compass, Play, Pause, Trophy, Hammer, Scale, Award, LifeBuoy, ShieldChe
 import { Info } from '@/components/ui';
 
 const NODES = [
-  { key: 'compete', label: 'Compete', icon: Trophy, tone: '#f08a24', angle: 15, sections: [['Open competitions', '/instances'], ['Am I eligible?', '/eligibility'], ['Create an account', '/register'], ['Track an application', '/track']] },
+  { key: 'compete', label: 'Compete', icon: Trophy, tone: '#f08a24', angle: 15, sections: [['Open competitions', '/instances'], ['Which can I enter?', '/eligibility'], ['Create an account', '/register'], ['Track an application', '/track']] },
   { key: 'build', label: 'Build', icon: Hammer, tone: '#e0622a', angle: 82, sections: [['Autosaving four-step form', '/how-it-works#apply'], ['Files checked on upload', '/how-it-works#apply'], ['Sealed receipt you can verify', '/verify']] },
   { key: 'judge', label: 'Judge', icon: Scale, tone: '#2fae7a', angle: 140, sections: [['Screening for completeness', '/how-it-works#judge'], ['Blind scoring, conflicts declared', '/how-it-works#judge'], ['Calibration and disagreement flags', '/how-it-works#judge'], ['Panel vote', '/judges']] },
   { key: 'award', label: 'Award', icon: Award, tone: '#f2c40f', angle: 200, sections: [['Funded innovators', '/funded'], ['Verify a certificate', '/verify'], ['Community', '/community']] },

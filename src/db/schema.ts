@@ -90,13 +90,15 @@ export type FieldDef = {
 };
 export type Criterion = { key: string; label: string; weight: number; guide: string };
 export type Stage = { key: string; label: string; starts: string; ends: string; note?: string };
+export const BUSINESS_STAGES = ['idea', 'startup', 'growth'] as const;
+export type BusinessStage = (typeof BUSINESS_STAGES)[number];
 export type InstanceDefinition = {
   kind: 'hackathon' | 'call' | 'ideas' | 'accelerator';
   audience: 'public' | 'staff';
   stages: Stage[];
   form: FieldDef[];
   rubric: Criterion[];
-  eligibility: { minAge?: number; maxAge?: number; citizenOnly?: boolean; minYouthShare?: number; cipaRequired?: boolean };
+  eligibility: { minAge?: number; maxAge?: number; citizenOnly?: boolean; minYouthShare?: number; cipaRequired?: boolean; womenLed?: boolean; businessStages?: BusinessStage[]; sectorRequired?: boolean };
   team: { min: number; max: number };
   reviewersPerEntry: number;
   shortlistSize: number;

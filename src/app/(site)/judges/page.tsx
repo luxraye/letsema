@@ -28,7 +28,7 @@ const MAP: Record<string, Shot[]> = {
   ],
   ux: [
     { what: 'The whole journey on one page, in plain words', href: '/how-it-works' },
-    { what: 'Am I eligible? in 30 seconds', href: '/eligibility' },
+    { what: 'Which competitions can I enter? Each one checks its own rules', href: '/eligibility' },
     { what: 'Larger text, high contrast and Setswana menus (the A icon in the header)', href: '/' },
   ],
   technical: [

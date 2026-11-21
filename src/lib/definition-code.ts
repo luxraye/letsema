@@ -27,6 +27,7 @@ export const DefinitionSchema = z.object({
   eligibility: z.object({
     minAge: z.number().int().min(16).max(99).optional(), maxAge: z.number().int().min(16).max(120).optional(),
     citizenOnly: z.boolean().optional(), minYouthShare: z.number().min(0).max(100).optional(), cipaRequired: z.boolean().optional(),
+    womenLed: z.boolean().optional(), businessStages: z.array(z.enum(['idea', 'startup', 'growth'])).optional(), sectorRequired: z.boolean().optional(),
   }).strict(),
   team: z.object({ min: z.number().int().min(1), max: z.number().int().min(1).max(50) }).strict(),
   reviewersPerEntry: z.number().int().min(1).max(10),

@@ -26,6 +26,68 @@ async function wipe() {
   await db.execute(sql.raw(`truncate ${tables.map((t) => `"${t}"`).join(', ')} restart identity cascade`));
 }
 
+/** Each demo competition sets its own entry rules, the way real calls differ. */
+type Rules = InstanceDefinition['eligibility'];
+const DEMO_RULES: Record<string, Rules> = {
+  'ceda-portal-hackathon-2026': { minAge: 18, maxAge: 35, citizenOnly: true, minYouthShare: 50, cipaRequired: true },
+  'youth-innovation-ideas-2026': { minAge: 18, maxAge: 35, citizenOnly: true, businessStages: ['idea'] },
+  'green-economy-call-2026': { citizenOnly: true, cipaRequired: true, sectorRequired: true, businessStages: ['startup', 'growth'] },
+  'staff-intrapreneurship-2026': {},
+  'ceda-women-enterprise-2026': { minAge: 18, citizenOnly: true, cipaRequired: true, womenLed: true, businessStages: ['startup', 'growth'] },
+  'bdih-digital-leap-2026': { minAge: 18, cipaRequired: true, sectorRequired: true, businessStages: ['startup', 'growth'] },
+  'btc-5g-iot-2026': { minAge: 18, sectorRequired: true, businessStages: ['idea', 'startup'] },
+  'tourism-creative-2027': { citizenOnly: true, sectorRequired: true },
+};
+const WOMEN = {
+  slug: 'ceda-women-enterprise-2026', name: 'CEDA Women in Enterprise Fund 2026', tagline: 'Growth funding for businesses owned by women.',
+  description: 'Loans with a grant top-up and mentoring for registered businesses that are at least 51% owned by women citizens. Part of CEDA’s push to close the gender gap among the innovators it funds.',
+  photo: '/photos/tailor.webp',
+  def: () => standardDefinition({
+    stages: [
+      { key: 'apply', label: 'Applications open', starts: '2026-11-02', ends: '2026-12-18' },
+      { key: 'screen', label: 'Screening', starts: '2027-01-04', ends: '2027-01-08' },
+      { key: 'score', label: 'Independent scoring', starts: '2027-01-11', ends: '2027-01-22' },
+      { key: 'panel', label: 'Panel decision', starts: '2027-01-25', ends: '2027-01-29' },
+      { key: 'award', label: 'Awards and onboarding', starts: '2027-02-01', ends: '2027-02-12' },
+    ],
+    eligibility: DEMO_RULES['ceda-women-enterprise-2026'],
+    prizes: [{ place: 'Up to 15 businesses', amount: 750000 }],
+  }),
+};
+
+/** Live data: set each competition's own entry rules, add the women's fund, and record it all as a new rules version. */
+async function perCompetitionRules() {
+  const [admin] = await db.select().from(schema.users).where(sql`email = 'admin@demo.ceda.bw'`);
+  const all = await db.select().from(schema.instances);
+  const reason = 'Entry rules set for this competition';
+  for (const i of all) {
+    const rules = DEMO_RULES[i.slug];
+    if (!rules || canonical(rules) === canonical(i.definition.eligibility)) continue;
+    const def = { ...i.definition, eligibility: rules };
+    const hash = rulesHash(def);
+    const version = i.status === 'draft' ? i.version : i.version + 1;
+    await db.update(schema.instances).set({ definition: def, rulesHash: hash, version, updatedAt: new Date() }).where(sql`id = ${i.id}`);
+    if (i.status !== 'draft') {
+      await db.insert(schema.instanceVersions).values({ instanceId: i.id, version, reason, definition: def, rulesHash: hash, changes: ['Changed eligibility rules'], byId: admin?.id ?? null });
+      await appendAudit({ actorId: admin?.id, actorName: admin?.name ?? 'System', action: 'instance.rules_changed', instanceId: i.id, detail: { version, from: i.rulesHash, to: hash, reason, changes: ['Changed eligibility rules'] } });
+    }
+  }
+  if (!all.some((i) => i.slug === WOMEN.slug)) {
+    const [ceda] = await db.select().from(schema.spaces).where(sql`slug = 'ceda'`);
+    const def = WOMEN.def();
+    const [x] = await db.insert(schema.instances).values({ spaceId: ceda.id, slug: WOMEN.slug, name: WOMEN.name, tagline: WOMEN.tagline, description: WOMEN.description, definition: def, rulesHash: rulesHash(def), photo: WOMEN.photo, status: 'live', opensAt: new Date(def.stages[0].starts), closesAt: new Date(def.stages.at(-1)!.ends), createdById: admin?.id ?? null }).returning();
+    await db.insert(schema.instanceVersions).values({ instanceId: x.id, version: 1, reason: 'First published', definition: def, rulesHash: x.rulesHash, byId: admin?.id ?? null });
+    const team = await db.select().from(schema.users).where(sql`role in ('evaluator', 'panel')`);
+    await db.insert(schema.instanceRoles).values([
+      ...(admin ? [{ userId: admin.id, instanceId: x.id, role: 'organiser' as const }] : []),
+      ...team.map((u) => ({ userId: u.id, instanceId: x.id, role: u.role === 'panel' ? 'panel' as const : 'evaluator' as const })),
+    ]).onConflictDoNothing();
+    await appendAudit({ actorId: admin?.id, actorName: admin?.name ?? 'System', action: 'instance.published', instanceId: x.id, detail: { name: x.name, rulesHash: x.rulesHash, version: 1 } });
+  }
+  await db.insert(schema.settings).values({ key: 'eligibility_v2', value: true }).onConflictDoNothing();
+  console.log('Set each competition’s own entry rules.');
+}
+
 async function main() {
   if (process.argv.includes('--if-empty') && (await db.$count(schema.users)) > 0) {
     // Keep data, but move a theme still on the first CEDA defaults to the current ones.
@@ -38,6 +100,9 @@ async function main() {
       if (!v || v.preset === 'ceda') await db.insert(schema.settings).values({ key: 'theme', value: DEFAULT_THEME }).onConflictDoUpdate({ target: schema.settings.key, set: { value: DEFAULT_THEME } });
       await db.insert(schema.settings).values({ key: 'look_v2', value: true });
     }
+    // Once only: give each competition its own entry rules (they all shared one set before).
+    const [ruled] = await db.select().from(schema.settings).where(sql`key = 'eligibility_v2'`);
+    if (!ruled) await perCompetitionRules();
     console.log('Database already has data; leaving it alone.'); process.exit(0);
   }
   console.log('Seeding…');
@@ -109,8 +174,9 @@ async function main() {
     shortlistSize: 5,
     prizes: [{ place: '1st', amount: 40000 }, { place: '2nd', amount: 25000 }, { place: '3rd', amount: 15000 }, { place: '4th', amount: 10000 }, { place: '5th', amount: 5000 }],
     sectors: ['Digital & technology'],
+    eligibility: DEMO_RULES['ceda-portal-hackathon-2026'],
   });
-  const youth = standardDefinition({ kind: 'ideas', prizes: [{ place: 'Up to 20 ideas', amount: 300000 }] });
+  const youth = standardDefinition({ kind: 'ideas', eligibility: DEMO_RULES['youth-innovation-ideas-2026'], prizes: [{ place: 'Up to 20 ideas', amount: 300000 }] });
   const green = standardDefinition({
     stages: [
       { key: 'apply', label: 'Applications open', starts: '2026-08-01', ends: '2026-09-30' },
@@ -121,6 +187,7 @@ async function main() {
     ],
     sectors: ['Green energy & climate', 'Agriculture & agro-processing'],
     prizes: [{ place: 'Grants up to P250,000 each', amount: 1500000 }],
+    eligibility: DEMO_RULES['green-economy-call-2026'],
   });
   const staffDef = standardDefinition({ audience: 'staff', kind: 'ideas', eligibility: {}, team: { min: 1, max: 4 }, reviewersPerEntry: 2, shortlistSize: 3, prizes: [{ place: 'Implementation budget', amount: 100000 }],
     form: [
@@ -133,8 +200,8 @@ async function main() {
       { key: 'saving', label: 'Time or money saved', weight: 35, guide: 'Is the saving real and measurable?' },
       { key: 'ease', label: 'Ease of putting it in place', weight: 25, guide: 'Can we do it within six months?' },
     ] });
-  const bdihDef = standardDefinition({ kind: 'accelerator', sectors: ['Digital & technology', 'Health & wellness', 'Green energy & climate'], prizes: [{ place: 'Accelerator places and grants', amount: 225000 }], reviewersPerEntry: 2 });
-  const btcDef = standardDefinition({ kind: 'hackathon', sectors: ['Digital & technology', 'Agriculture & agro-processing'], prizes: [{ place: '1st', amount: 75000 }, { place: '2nd', amount: 50000 }, { place: '3rd', amount: 25000 }], reviewersPerEntry: 2 });
+  const bdihDef = standardDefinition({ kind: 'accelerator', eligibility: DEMO_RULES['bdih-digital-leap-2026'], sectors: ['Digital & technology', 'Health & wellness', 'Green energy & climate'], prizes: [{ place: 'Accelerator places and grants', amount: 225000 }], reviewersPerEntry: 2 });
+  const btcDef = standardDefinition({ kind: 'hackathon', eligibility: DEMO_RULES['btc-5g-iot-2026'], sectors: ['Digital & technology', 'Agriculture & agro-processing'], prizes: [{ place: '1st', amount: 75000 }, { place: '2nd', amount: 50000 }, { place: '3rd', amount: 25000 }], reviewersPerEntry: 2 });
 
   const mk = (spaceId: string, slug: string, name: string, tagline: string, description: string, def: InstanceDefinition, photo: string, extra: Partial<typeof schema.instances.$inferInsert> = {}) => ({
     spaceId, slug, name, tagline, description, definition: def, rulesHash: rulesHash(def), photo, status: 'live' as const,
@@ -144,10 +211,11 @@ async function main() {
     mk(ceda.id, 'ceda-portal-hackathon-2026', 'CEDA Innovation Management Portal Hackathon 2026', 'Build the portal that will run CEDA’s innovation funding.', 'Design, build and deploy a secure, easy innovation management portal for CEDA. Open to registered businesses owned by citizen youth (18 to 35), in teams of 1 to 5.', hackathon, '/photos/team-coding.webp', { featured: true }),
     mk(ceda.id, 'youth-innovation-ideas-2026', 'CEDA Youth Innovation Ideas 2026', 'Got an idea that could become a business? Start here.', 'A national ideas call for young citizens. Winning ideas receive seed funding, mentoring and a place in CEDA’s pipeline.', youth, '/photos/young-makers.webp'),
     mk(ceda.id, 'green-economy-call-2026', 'Green Economy Fund 2026', 'Clean energy, water and climate-smart farming.', 'Grants for citizen-owned businesses that cut emissions, save water or help farmers adapt to drought.', green, '/photos/okavango-aerial.webp'),
+    mk(ceda.id, WOMEN.slug, WOMEN.name, WOMEN.tagline, WOMEN.description, WOMEN.def(), WOMEN.photo),
     mk(ceda.id, 'staff-intrapreneurship-2026', 'CEDA Staff Intrapreneurship 2026', 'CEDA staff: improve how we serve clients.', 'An internal campaign for CEDA employees. The best ideas get a budget and time to put them in place.', staffDef, '/photos/founders-meeting.webp'),
     mk(bdih.id, 'bdih-digital-leap-2026', 'BDIH Digital Leap Accelerator 2026', 'Scale-ups in AI, GovTech and climate tech.', 'Demo partner Instance: a six-month accelerator run by BDIH on the same platform, with its own colours and evaluators.', bdihDef, '/photos/lab-drone.webp'),
     mk(btc.id, 'btc-5g-iot-2026', 'BTC 5G & IoT Challenge 2026', 'Smart utilities and connected farms on 5G.', 'Demo partner Instance: build IoT solutions on BTC’s network for utilities and agriculture.', btcDef, '/photos/soldering.webp'),
-    mk(ceda.id, 'tourism-creative-2027', 'Tourism & Creative Industries 2027', 'Opening in 2027.', 'Draft call being prepared by the CEDA team.', standardDefinition({ sectors: ['Tourism & creative'] }), '/photos/mokoro.webp', { status: 'draft' }),
+    mk(ceda.id, 'tourism-creative-2027', 'Tourism & Creative Industries 2027', 'Opening in 2027.', 'Draft call being prepared by the CEDA team.', standardDefinition({ sectors: ['Tourism & creative'], eligibility: DEMO_RULES['tourism-creative-2027'] }), '/photos/mokoro.webp', { status: 'draft' }),
   ]).returning();
   const I = (slug: string) => inst.find((x) => x.slug === slug)!;
   for (const x of inst) await db.insert(schema.instanceVersions).values({ instanceId: x.id, version: 1, reason: 'First published', definition: x.definition, rulesHash: x.rulesHash, byId: admin.id, createdAt: at(-60) });
@@ -346,6 +414,7 @@ async function main() {
   await db.insert(schema.settings).values([
     { key: 'theme', value: DEFAULT_THEME },
     { key: 'regulators', value: REGULATORS },
+    { key: 'eligibility_v2', value: true },
   ]);
 
   // ── Audit trail ─────────────────────────────────────────────────────────

@@ -1,7 +1,8 @@
 'use client';
 import { useState, useTransition } from 'react';
 import { ArrowDown, ArrowUp, Braces, CheckCircle2, Download, Plus, Trash2, Wand2 } from 'lucide-react';
-import type { Criterion, FieldDef, InstanceDefinition, Stage } from '@/db/schema';
+import { BUSINESS_STAGES, type Criterion, type FieldDef, type InstanceDefinition, type Stage } from '@/db/schema';
+import { STAGE_LABEL, ruleSummary } from '@/lib/eligibility';
 import { saveDefinition } from '@/app/actions/admin';
 import { parseInstanceCode, toCode } from '@/lib/definition-code';
 
@@ -95,14 +96,17 @@ export function StudioEditor({ id, live, def: initial, meta: m0, photos, rulesHa
             </div>
           </>}
           {tab === 'Who can enter' && <>
+            <p className="mb-4 text-sm text-muted">These rules belong to this competition only. Applicants see them on its page, and the checker asks only the questions these rules need. Leave everything empty to let anyone with an account enter.</p>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="text-sm"><span className="label">Minimum age</span><input className="field" inputMode="numeric" value={def.eligibility.minAge ?? ''} onChange={(e) => set({ eligibility: { ...def.eligibility, minAge: Number(e.target.value) || undefined } })} /></label>
               <label className="text-sm"><span className="label">Maximum age</span><input className="field" inputMode="numeric" value={def.eligibility.maxAge ?? ''} onChange={(e) => set({ eligibility: { ...def.eligibility, maxAge: Number(e.target.value) || undefined } })} /></label>
               <label className="text-sm"><span className="label">Youth ownership must exceed (%)</span><input className="field" inputMode="numeric" value={def.eligibility.minYouthShare ?? ''} onChange={(e) => set({ eligibility: { ...def.eligibility, minYouthShare: Number(e.target.value) || undefined } })} /></label>
-              <div className="space-y-2 pt-6 text-sm"><label className="flex items-center gap-2"><input type="checkbox" checked={!!def.eligibility.citizenOnly} onChange={(e) => set({ eligibility: { ...def.eligibility, citizenOnly: e.target.checked } })} /> Citizens only</label><label className="flex items-center gap-2"><input type="checkbox" checked={!!def.eligibility.cipaRequired} onChange={(e) => set({ eligibility: { ...def.eligibility, cipaRequired: e.target.checked } })} /> CIPA-registered business</label></div>
+              <div className="space-y-2 pt-6 text-sm"><label className="flex items-center gap-2"><input type="checkbox" checked={!!def.eligibility.citizenOnly} onChange={(e) => set({ eligibility: { ...def.eligibility, citizenOnly: e.target.checked } })} /> Citizens only</label><label className="flex items-center gap-2"><input type="checkbox" checked={!!def.eligibility.cipaRequired} onChange={(e) => set({ eligibility: { ...def.eligibility, cipaRequired: e.target.checked } })} /> CIPA-registered business</label><label className="flex items-center gap-2"><input type="checkbox" checked={!!def.eligibility.womenLed} onChange={(e) => set({ eligibility: { ...def.eligibility, womenLed: e.target.checked || undefined } })} /> At least 51% owned by women</label><label className="flex items-center gap-2"><input type="checkbox" checked={!!def.eligibility.sectorRequired} onChange={(e) => set({ eligibility: { ...def.eligibility, sectorRequired: e.target.checked || undefined } })} /> Must work in one of this competition&rsquo;s sectors</label></div>
+              <fieldset className="text-sm sm:col-span-2"><legend className="label">Business stages that can enter (none ticked means any stage)</legend><div className="flex flex-wrap gap-4">{BUSINESS_STAGES.map((st) => { const on = def.eligibility.businessStages?.includes(st) ?? false; return <label key={st} className="flex items-center gap-2"><input type="checkbox" checked={on} onChange={(e) => { const next = BUSINESS_STAGES.filter((x) => x === st ? e.target.checked : def.eligibility.businessStages?.includes(x)); set({ eligibility: { ...def.eligibility, businessStages: next.length ? next : undefined } }); }} /> {STAGE_LABEL[st]}</label>; })}</div></fieldset>
               <label className="text-sm"><span className="label">Smallest team</span><input className="field" inputMode="numeric" value={def.team.min} onChange={(e) => set({ team: { ...def.team, min: Number(e.target.value) || 1 } })} /></label>
               <label className="text-sm"><span className="label">Largest team</span><input className="field" inputMode="numeric" value={def.team.max} onChange={(e) => set({ team: { ...def.team, max: Number(e.target.value) || 1 } })} /></label>
             </div>
+            <div className="mt-5 rounded-2xl bg-sand p-4 text-sm"><div className="text-xs font-bold uppercase tracking-wider text-muted">Applicants will read</div><ul className="mt-2 list-disc space-y-1 pl-5">{ruleSummary(def).length ? ruleSummary(def).map((r) => <li key={r}>{r}</li>) : <li>Anyone with a free account.</li>}</ul></div>
           </>}
           {tab === 'Code (JSON)' && <>
             <div className="flex flex-wrap items-start justify-between gap-3">

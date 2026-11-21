@@ -45,7 +45,7 @@ export default async function InstancePage({ params, searchParams }: { params: P
           </div>
           <div className="mt-7 flex flex-wrap gap-3">
             {open ? <form action={apply}><Submit className="btn-primary !px-6 !py-3 text-base">Apply now</Submit></form> : <span className="btn-dark !cursor-default">{i.status === 'closed' ? 'Closed' : `Entries not open now: ${st.stage?.label ?? ''}`}</span>}
-            <a href="#eligible" className="btn-dark !px-5 !py-3">Am I eligible?</a>
+            <a href="#eligible" className="btn-dark !px-5 !py-3">Can I enter this one?</a>
           </div>
           {sp.closed && <p className="mt-4 text-sm text-amber">This competition is not accepting new entries right now.</p>}
           {sp.staffOnly && <p className="mt-4 text-sm text-amber">This campaign is open to CEDA staff only.</p>}
@@ -78,8 +78,9 @@ export default async function InstancePage({ params, searchParams }: { params: P
             </ol>
           </section>
           <section id="eligible" className="scroll-mt-24">
-            <h2 className="mb-4 text-2xl font-bold">Am I eligible?</h2>
-            <EligibilityChecker def={d} />
+            <h2 className="mb-1 text-2xl font-bold">Can I enter this competition?</h2>
+            <p className="mb-4 text-sm text-muted">These rules are set for {i.name} only. Other competitions have their own.</p>
+            <EligibilityChecker def={d} name={i.name} />
           </section>
         </div>
         <aside className="space-y-5">

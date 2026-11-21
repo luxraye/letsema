@@ -4,7 +4,7 @@ import { Logo, LogoMark } from './logo';
 
 export function SiteFooter() {
   const cols = [
-    ['Apply', [['/instances', 'Open competitions'], ['/eligibility', 'Eligibility checker'], ['/register', 'Create an account'], ['/track', 'Track my idea']]],
+    ['Apply', [['/instances', 'Open competitions'], ['/eligibility', 'Which can I enter?'], ['/register', 'Create an account'], ['/track', 'Track my idea']]],
     ['The programme', [['/page/about', 'About'], ['/judges', 'How to judge this portal'], ['/how-it-works', 'How judging works'], ['/funded', 'Funded innovators'], ['/privacy', 'Privacy notice']]],
     ['Help', [['/help', 'Help and FAQs'], ['/help#support', 'Report a problem'], ['/dial', 'No data? Dial *161#'], ['/community', 'Community'], ['/status', 'Status and hosting']]],
   ] as const;
