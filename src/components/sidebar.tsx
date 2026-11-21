@@ -2,12 +2,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Sparkles, LogOut, Home, FileText, Trophy, Scale, Filter, Gavel, List, MessageCircle, LifeBuoy, BarChart3, Layers, FileStack, Users, ShieldCheck, Lock, Palette, User, Menu, X } from 'lucide-react';
+import { Sparkles, LogOut, Home, FileText, Trophy, Scale, Filter, Gavel, List, MessageCircle, LifeBuoy, BarChart3, Layers, FileStack, Users, ShieldCheck, Lock, Palette, User, Menu, X, MessagesSquare, Globe } from 'lucide-react';
 import type { NavItem } from '@/lib/nav';
 import { Logo } from './logo';
 import { logout } from '@/app/actions/auth';
 
-const ICONS = { home: Home, file: FileText, trophy: Trophy, scale: Scale, filter: Filter, gavel: Gavel, list: List, chat: MessageCircle, lifebuoy: LifeBuoy, chart: BarChart3, layers: Layers, pages: FileStack, users: Users, shield: ShieldCheck, lock: Lock, palette: Palette, user: User } as const;
+const ICONS = { home: Home, file: FileText, trophy: Trophy, scale: Scale, filter: Filter, gavel: Gavel, list: List, chat: MessageCircle, lifebuoy: LifeBuoy, chart: BarChart3, layers: Layers, pages: FileStack, users: Users, shield: ShieldCheck, lock: Lock, palette: Palette, user: User, forum: MessagesSquare } as const;
 
 export function Sidebar({ items, badges, user }: { items: NavItem[]; badges: Record<string, number>; user: { name: string; email: string; role: string } }) {
   const path = usePathname();
@@ -37,7 +37,8 @@ export function Sidebar({ items, badges, user }: { items: NavItem[]; badges: Rec
       <div className="px-2 text-sm font-semibold text-white">{user.name}</div>
       <div className="truncate px-2 text-[13px] text-white/70">{user.email}</div>
       <div className="px-2 text-[13px] text-amber">{user.role}</div>
-      <form action={logout}><button className="mt-3 flex w-full items-center gap-3 rounded-lg px-2 py-2 text-[15px] text-white/85 hover:bg-white/10"><LogOut size={18} /> Sign out</button></form>
+      <Link href="/" className="mt-3 flex w-full items-center gap-3 rounded-lg px-2 py-2 text-[15px] text-white/85 hover:bg-white/10"><Globe size={18} /> Go to the public site</Link>
+      <form action={logout}><button className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-[15px] text-white/85 hover:bg-white/10"><LogOut size={18} /> Sign out</button></form>
     </div>
   );
   return (

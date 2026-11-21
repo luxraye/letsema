@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 /** Menus and key labels in Setswana. Long-form content stays in English for now. */
 const TN: Record<string, string> = {
   'Competitions': 'Dikgaisano', 'How it works': 'Go dira jang', 'Track': 'Sala morago', 'Help': 'Thuso', 'Community': 'Setšhaba',
-  'Sign in': 'Tsena', 'Create account': 'Ikwadise', 'Dashboard': 'Tafole', 'Sign out': 'Tswa', 'Apply': 'Ikwadisetsa',
+  'Sign in': 'Tsena', 'Create account': 'Ikwadise', 'Dashboard': 'Tafole', 'My dashboard': 'Tafole ya me', 'Sign out': 'Tswa', 'Apply': 'Ikwadisetsa',
   'My applications': 'Dikopo tsa me', 'Notifications': 'Dikitsiso', 'Profile': 'Porofaele', 'Reports': 'Dipego',
   'Funded': 'Ba ba thusitsweng', 'Status': 'Seemo', 'Privacy': 'Sephiri', 'For judges': 'Ba ba atlholang', 'Live chat': 'Puisano',
   'Am I eligible?': 'A ke a tshwanela?', 'Am I Eligible?': 'A ke a tshwanela?', 'Which Can I Enter?': 'Ke ka tsenela efe?', 'See Open Competitions': 'Bona dikgaisano tse di butsweng',

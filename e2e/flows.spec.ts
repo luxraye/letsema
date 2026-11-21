@@ -205,3 +205,22 @@ test('eligibility: each competition has its own rules, and the finder judges eac
   await page.goto('/i/youth-innovation-ideas-2026');
   await expect(page.getByRole('group', { name: 'Do women own at least 51% of the business?' })).toHaveCount(0);
 });
+
+test('navigation: innovator reaches the forum and competitions without looking signed out, and sign-out lands on login', async ({ page }) => {
+  await as(page, 'Innovator');
+  await page.getByRole('link', { name: 'Community forum' }).first().click();
+  await expect(page).toHaveURL(/\/community$/);
+  await expect(page.getByText(/Signed in as/)).toBeVisible();
+  await page.goto('/dashboard');
+  await page.getByRole('link', { name: 'Find a competition' }).first().click();
+  await expect(page).toHaveURL(/\/instances/);
+  await expect(page.getByRole('link', { name: /My dashboard, signed in as/ })).toBeVisible();
+  await page.getByRole('link', { name: 'Back to my dashboard' }).click();
+  await expect(page).toHaveURL(/\/dashboard$/);
+  await page.getByRole('button', { name: 'Sign out' }).first().click();
+  await expect(page).toHaveURL(/\/login\?signedout=1/);
+  await expect(page.getByText('You are signed out.')).toBeVisible();
+  await page.getByRole('link', { name: 'Back to home' }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('link', { name: 'Sign in' }).first()).toBeVisible();
+});

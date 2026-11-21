@@ -1,5 +1,8 @@
 import Link from 'next/link';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, LayoutDashboard, LogOut } from 'lucide-react';
+import { Avatar } from './ui';
+import { logout } from '@/app/actions/auth';
+import { ROLE_LABEL } from '@/lib/rbac';
 import { MENUS } from '@/lib/site-map';
 import { SiteSearch } from './site-search';
 import { Logo } from './logo';
@@ -20,7 +23,13 @@ export async function SiteHeader() {
     <>
       <div className="relative z-40 bg-ink text-[11px] text-white/70">
         <div className="mx-auto flex h-7 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-          <span className="truncate">Citizen Entrepreneurial Development Agency · Republic of Botswana</span>
+          {me ? (
+            <span className="flex min-w-0 items-center gap-2" data-signed-in>
+              <span className="truncate">Signed in as <b className="text-white">{me.name}</b><span className="hidden sm:inline"> · {ROLE_LABEL[me.role]}</span></span>
+              <Link href="/dashboard" className="shrink-0 font-semibold text-amber hover:text-white">Back to my dashboard</Link>
+              <form action={logout} className="hidden sm:block"><button className="inline-flex items-center gap-1 hover:text-white"><LogOut size={11} /> Sign out</button></form>
+            </span>
+          ) : <span className="truncate">Citizen Entrepreneurial Development Agency · Republic of Botswana</span>}
           <div className="flex shrink-0 items-center gap-3">
             <LangToggle lang={lang} />
             <span className="hidden text-white/20 sm:inline">|</span>
@@ -58,7 +67,7 @@ export async function SiteHeader() {
             </Link>
             <ThemeToggle initial={look} />
             <A11yMenu dark />
-            {me ? <Link href="/dashboard" className="btn-primary !rounded-full !px-4 !py-1.5 !text-xs">{tr('Dashboard')}</Link> : <Link href="/login" className="btn-primary !rounded-full !px-4 !py-1.5 !text-xs">{tr('Sign in')}</Link>}
+            {me ? <Link href="/dashboard" aria-label={`My dashboard, signed in as ${me.name}`} className="btn-primary !rounded-full !py-1 !pl-1 !pr-3.5 !text-xs"><Avatar name={me.name} size={24} /><LayoutDashboard size={13} className="hidden sm:block" />{tr('My dashboard')}</Link> : <Link href="/login" className="btn-primary !rounded-full !px-4 !py-1.5 !text-xs">{tr('Sign in')}</Link>}
             <MobileNav menus={MENUS.map((m) => ({ label: tr(m.label), items: m.items.map(({ href, title }) => ({ href, title })) }))} />
           </div>
         </div>
