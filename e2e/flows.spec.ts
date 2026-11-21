@@ -94,6 +94,18 @@ test('home: system map opens a branch and lists its sections', async ({ page }) 
   await expect(page.getByRole('link', { name: /Audit trail anyone can check/ }).first()).toBeVisible();
 });
 
+test('home: on a laptop screen the map explainer opens beside the branch, with no scrolling', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await page.goto('/');
+  await expect(page.getByText('Designed by Local Grow Pty Ltd')).toBeVisible();
+  await page.getByRole('heading', { name: 'Explore the Entire Platform' }).scrollIntoViewIfNeeded();
+  const judge = page.getByRole('button', { name: /^Judge/ }).first();
+  await judge.click();
+  await expect(page.locator('#map-explainer')).toContainText('scored blind');
+  await expect(page.locator('#map-explainer')).toBeInViewport();
+  await expect(judge).toBeInViewport();
+});
+
 test('dial *161#: track an application without data', async ({ page }) => {
   await page.goto('/dial');
   for (const k of ['*', '1', '6', '1', '#']) await page.getByRole('button', { name: k, exact: true }).click();

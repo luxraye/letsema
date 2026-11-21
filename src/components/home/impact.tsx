@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Target, Users, Venus } from 'lucide-react';
 import { pula } from '@/lib/instances';
 
@@ -126,7 +127,9 @@ export function InclusionStats() {
           <Donut id="age" title="Innovators by age" slices={ages} centre={`${youthPct}%`} centreSub="are youth" />
           <Donut id="gender" title="Innovators by gender" slices={gender} centre={`${womenPct}%`} centreSub="are women" />
         </div>
-        <div className="reveal mt-6 grid gap-5 rounded-3xl border border-line bg-surface p-6 sm:p-8 lg:grid-cols-[1.4fr_1fr]">
+        <div className="reveal mt-6 grid overflow-hidden rounded-3xl border border-line bg-surface md:grid-cols-[16rem_1fr] lg:grid-cols-[20rem_1fr]">
+          <figure className="relative min-h-52 md:min-h-full"><Image src="/photos/young-makers.webp" alt="Two young women building a robot in a makerspace" fill sizes="(min-width:1024px) 20rem, (min-width:768px) 16rem, 100vw" className="object-cover" /></figure>
+          <div className="grid gap-5 p-6 sm:p-8 lg:grid-cols-[1.4fr_1fr]">
           <div>
             <h3 className="flex items-center gap-2 text-xl font-bold"><Target size={20} className="text-[var(--brand)]" /> Why we show these numbers</h3>
             <p className="mt-2 text-muted">They are a goalpost, not a scoreboard. Young people already lead, but women are fewer than one in three innovators. Putting the gap in plain sight lets CEDA aim outreach, set targets for each competition, and check every year whether the gap is closing.</p>
@@ -141,6 +144,7 @@ export function InclusionStats() {
               <div className="relative mt-2 h-2.5 rounded-full bg-sand"><div className="h-full rounded-full bg-[var(--viz-age-3)]" style={{ width: `${youthPct}%` }} /><span className="absolute -top-1 h-[18px] w-0.5 rounded bg-fg" style={{ left: '75%' }} title="Goal: above 75%" /></div>
             </div>
           </div>
+        </div>
         </div>
         <p className="mt-4 text-xs text-muted">Illustrative figures, shaped like the typical mix in innovation programmes (mostly young, mostly men). On a live portal they come straight from the database: age and gender are optional in each profile and only ever shown as totals, in line with the Data Protection Act 2024.</p>
       </div>

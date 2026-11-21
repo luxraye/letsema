@@ -77,6 +77,7 @@ export default async function Home() {
               <span className="truncate">{featured ? <>{featured.i.name}{stage?.stage ? ` · now: ${stage.stage.label}` : ''}</> : 'Citizen Entrepreneurial Development Agency'}</span>
             </span>
             <h1 className="rise-2 mt-6 text-[2.75rem] font-extrabold leading-[1.02] [text-shadow:0_4px_40px_rgba(0,0,0,.45)] sm:text-6xl lg:text-[4.6rem]">Your idea deserves<br /><span className="text-gradient-dark">a fair shot.</span></h1>
+            <p className="rise-2 mt-3 text-xs font-semibold uppercase tracking-[0.18em] text-white/60">Designed by Local Grow Pty Ltd</p>
             <p className="rise-3 mt-6 max-w-xl text-lg text-white/80">Enter CEDA competitions online, see exactly how you’ll be judged, and follow your application live at every step, on any phone.</p>
             <div className="rise-3 mt-8 flex flex-wrap items-center gap-3">
               <Link href="/instances" className="btn-primary !rounded-xl !px-6 !py-3.5 text-[15px] font-bold">{tr('See Open Competitions')} <ArrowRight size={18} /></Link>
@@ -108,7 +109,8 @@ export default async function Home() {
           <div className="reveal max-w-3xl"><span className="eyebrow">What CEDA asked for</span><h2 className="mt-4 text-3xl font-bold sm:text-[2.6rem]">Four jobs, done in one place</h2><p className="mt-2 text-muted">Take in submissions, evaluate them, talk to innovators securely, and track all of it. Tap a card to see how each one works.</p></div>
           <div className="mt-10 grid gap-4">
             {featured && (
-              <div className="reveal card overflow-hidden p-6 sm:p-8">
+              <div className="reveal card grid overflow-hidden p-0 lg:grid-cols-[minmax(0,1fr)_22rem]">
+              <div className="p-6 sm:p-8">
                 <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-[var(--brand)] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">Featured challenge</span><span className="inline-flex items-center gap-1 rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-800"><ShieldCheck size={13} /> Rules sealed ✓</span></div>
                 <h3 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl">{featured.i.name}</h3>
                 <p className="mt-3 max-w-2xl text-[15px] text-muted">{featured.i.description}</p>
@@ -125,6 +127,8 @@ export default async function Home() {
                 </ol>
                 <div className="mt-6 flex flex-wrap gap-3"><Link href={`/i/${featured.i.slug}`} className="btn-primary !px-5 !py-3 font-bold">View challenge and apply <ArrowRight size={16} /></Link><Link href="/instances" className="btn-ghost !px-5 !py-3 font-bold">All competitions</Link></div>
               </div>
+              <div className="relative hidden min-h-64 lg:block"><Image src={featured.i.photo ?? '/photos/team-coding.webp'} alt="" fill sizes="22rem" className="object-cover" /><div className="absolute inset-0 bg-gradient-to-r from-[var(--t-surface)] via-transparent to-transparent" /></div>
+              </div>
             )}
             <JobCards />
           </div>
@@ -132,13 +136,13 @@ export default async function Home() {
       </section>
 
       {/* Interactive system map */}
-      <section className="relative overflow-hidden bg-ink py-20 text-white">
+      <section className="relative overflow-hidden bg-ink py-14 text-white">
         <Ambient silk={false} ripples={false} />
-        <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="reveal mb-8 text-center">
-            <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber">Interactive system map</span>
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="reveal mb-6 text-center">
+            <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber">For judges: how it all fits together</span>
             <h2 className="mt-4 text-3xl font-bold sm:text-[2.5rem]">Explore the Entire Platform</h2>
-            <p className="mx-auto mt-2 max-w-2xl text-white/70">Touch or click any branch to see its sections and jump straight there.</p>
+            <p className="mx-auto mt-2 max-w-2xl text-white/70">A map of the whole platform for this pitch. Click any branch to see what it covers and jump straight there.</p>
           </div>
           <SystemMap />
         </div>
