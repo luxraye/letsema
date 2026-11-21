@@ -17,7 +17,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <p className="mt-6 text-center text-sm text-muted">New innovator? <Link href="/register" className="font-medium text-[var(--brand)]">Create an account</Link></p>
         </div>
         {demoMode() && (
-          <div className="card p-6">
+          <div className="card min-w-0 p-6">
             <h2 className="text-lg font-semibold">Try it as any role</h2>
             <p className="mb-4 mt-1 text-sm text-muted">Judges: pick any role below to explore. Password for all: <code className="mono rounded bg-sand px-1.5 py-0.5 text-xs font-bold text-fg">CedaDemo2026!</code></p>
             <DemoAccounts next={sp.next} compact />
