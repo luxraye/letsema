@@ -149,7 +149,7 @@ export async function logout() {
   const me = await currentUser();
   if (me) await appendAudit({ actorId: me.id, actorName: me.name, action: 'auth.signout' });
   await endSession();
-  redirect('/');
+  redirect('/login?signedout=1');
 }
 
 function safeNext(v: FormDataEntryValue | null | string) {

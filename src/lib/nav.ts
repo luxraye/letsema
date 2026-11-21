@@ -19,6 +19,7 @@ export const NAV: NavItem[] = [
   { href: '/dashboard/audit', label: 'Audit trail', icon: 'shield', perm: 'audit.view', group: 'Manage' },
   { href: '/dashboard/privacy', label: 'Data protection', icon: 'lock', perm: 'privacy.manage', group: 'Manage' },
   { href: '/dashboard/settings', label: 'Look and settings', icon: 'palette', perm: 'settings.manage', group: 'Manage' },
+  { href: '/community', label: 'Community forum', icon: 'forum', group: 'Account' },
   { href: '/dashboard/profile', label: 'Profile and security', icon: 'user', group: 'Account' },
 ];
 export const navFor = (role: Role) => NAV.filter((n) => (!n.perm || can(role, n.perm)) && (!n.roles || n.roles.includes(role)));
