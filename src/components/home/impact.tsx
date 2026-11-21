@@ -1,4 +1,4 @@
-import { Users, Venus } from 'lucide-react';
+import { Target, Users, Venus } from 'lucide-react';
 import { pula } from '@/lib/instances';
 
 /* ---------- SDGs 2030 ---------- */
@@ -8,7 +8,7 @@ type Metrics = { womenPct: number; awarded: number; awardedSum: number; live: nu
 /** UN goal numbers in their official colours, with what the portal does for each and a live figure. */
 export function SdgGoals({ m }: { m: Metrics }) {
   const goals = [
-    { n: 5, name: 'Gender equality', colour: '#FF3A21', does: 'Optional gender reporting shows how many women apply, and a scoring rubric that is blind to names.', stat: `${m.womenPct}% of registered innovators are women` },
+    { n: 5, name: 'Gender equality', colour: '#FF3A21', does: 'Optional gender reporting shows how many women apply, and a scoring rubric that is blind to names.', stat: `Women are ${m.womenPct}% of innovators; the goal is 50%` },
     { n: 8, name: 'Decent work and economic growth', colour: '#A21942', does: 'Funding goes to citizen-owned ventures that hire locally, with youth ownership checked at entry.', stat: `${pula(m.awardedSum)} awarded to ${m.awarded} ventures` },
     { n: 9, name: 'Industry, innovation and infrastructure', colour: '#FD6925', does: 'One digital front door for every CEDA call, hackathon and accelerator, set up with no code.', stat: `${m.live} competitions open now` },
     { n: 10, name: 'Reduced inequalities', colour: '#DD1367', does: 'Apply from a cheap phone, track by SMS or dial *161# with no data, in English or Setswana.', stat: `Applications from ${m.districts} districts` },
@@ -61,7 +61,7 @@ function Donut({ title, slices, centre, centreSub, id }: { title: string; slices
               const len = (s.value / total) * C;
               const el = (
                 <circle key={s.label} cx="60" cy="60" r={R} fill="none" stroke={s.colour} strokeWidth="14" strokeDasharray={`${Math.max(len - GAP, 0.5)} ${C}`} strokeDashoffset={-at} className="transition-[stroke-width] duration-200 hover:[stroke-width:17]">
-                  <title>{`${s.label}: ${s.value} (${pct(s.value)}%)`}</title>
+                  <title>{`${s.label}: ${pct(s.value)}%`}</title>
                 </circle>
               );
               at += len;
@@ -77,7 +77,6 @@ function Donut({ title, slices, centre, centreSub, id }: { title: string; slices
             <li key={s.label} className="flex items-center gap-2.5">
               <span className="size-3 shrink-0 rounded-[4px]" style={{ background: s.colour }} aria-hidden />
               <span className="flex-1 text-fg">{s.label}</span>
-              <span className="mono text-muted">{s.value}</span>
               <span className="w-11 text-right font-semibold text-fg">{pct(s.value)}%</span>
             </li>
           ))}
@@ -86,26 +85,29 @@ function Donut({ title, slices, centre, centreSub, id }: { title: string; slices
       <details className="mt-4 text-sm">
         <summary className="cursor-pointer text-xs font-semibold text-muted hover:text-fg">Show as a table</summary>
         <table className="mt-2 w-full text-left text-[13px]">
-          <thead><tr className="border-b border-line text-muted"><th className="py-1 font-medium">Group</th><th className="py-1 text-right font-medium">People</th><th className="py-1 text-right font-medium">Share</th></tr></thead>
-          <tbody>{slices.map((s) => <tr key={s.label} className="border-b border-line/60"><td className="py-1">{s.label}</td><td className="py-1 text-right">{s.value}</td><td className="py-1 text-right">{pct(s.value)}%</td></tr>)}</tbody>
+          <thead><tr className="border-b border-line text-muted"><th className="py-1 font-medium">Group</th><th className="py-1 text-right font-medium">Share</th></tr></thead>
+          <tbody>{slices.map((s) => <tr key={s.label} className="border-b border-line/60"><td className="py-1">{s.label}</td><td className="py-1 text-right">{pct(s.value)}%</td></tr>)}</tbody>
         </table>
       </details>
     </figure>
   );
 }
 
-type Inclusion = { total: number; ages: Record<string, number>; gender: Record<string, number>; youth: number };
+/**
+ * Illustrative breakdown that mirrors the innovation scene on the ground: mostly young, mostly men.
+ * In production these come from the live database (optional profile fields, shown only as totals).
+ */
+const AGES: [string, number][] = [['18–24', 28], ['25–29', 30], ['30–35', 22], ['36 and over', 17], ['Not stated', 3]];
+const GENDER: [string, number][] = [['Women', 28], ['Men', 70], ['Not stated', 2]];
+export const ILLUSTRATIVE = { youthPct: 80, womenPct: 28, womenGoal: 50 };
 
-/** Youth and women representation among registered innovators, from live data. */
-export function InclusionStats({ s }: { s: Inclusion }) {
-  const share = (n: number) => (s.total ? Math.round((n / s.total) * 100) : 0);
+/** Youth and women representation among innovators, framed as a goalpost to close the gaps. */
+export function InclusionStats() {
   const ageColours = ['var(--viz-age-1)', 'var(--viz-age-2)', 'var(--viz-age-3)', 'var(--viz-age-4)', 'var(--viz-na)'];
-  const ages: Slice[] = Object.entries(s.ages).map(([label, value], i) => ({ label, value, colour: ageColours[i] }));
-  const gender: Slice[] = [
-    { label: 'Women', value: s.gender.Women, colour: 'var(--viz-women)' },
-    { label: 'Men', value: s.gender.Men, colour: 'var(--viz-men)' },
-    { label: 'Not stated', value: s.gender['Not stated'], colour: 'var(--viz-na)' },
-  ];
+  const genderColours = ['var(--viz-women)', 'var(--viz-men)', 'var(--viz-na)'];
+  const ages: Slice[] = AGES.map(([label, value], i) => ({ label, value, colour: ageColours[i] }));
+  const gender: Slice[] = GENDER.map(([label, value], i) => ({ label, value, colour: genderColours[i] }));
+  const { youthPct, womenPct, womenGoal } = ILLUSTRATIVE;
   return (
     <section className="bg-alt py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -113,18 +115,34 @@ export function InclusionStats({ s }: { s: Inclusion }) {
           <div className="max-w-2xl">
             <span className="eyebrow">Inclusion</span>
             <h2 className="mt-4 text-3xl font-bold sm:text-[2.5rem]">Who Is Taking Part</h2>
-            <p className="mt-2 text-muted">Innovation hubs measure how well they reach young people and women. These charts update live from the {s.total} innovators registered on the portal.</p>
+            <p className="mt-2 text-muted">Innovation hubs measure how well they reach young people and women. The portal tracks both for every competition.</p>
           </div>
           <div className="flex gap-3">
-            <div className="card flex items-center gap-3 px-4 py-3"><Users size={18} className="text-[var(--brand)]" /><span><span className="font-display block text-2xl font-extrabold leading-none">{share(s.youth)}%</span><span className="text-xs text-muted">youth, aged 18 to 35</span></span></div>
-            <div className="card flex items-center gap-3 px-4 py-3"><Venus size={18} className="text-[var(--brand)]" /><span><span className="font-display block text-2xl font-extrabold leading-none">{share(s.gender.Women)}%</span><span className="text-xs text-muted">women</span></span></div>
+            <div className="card flex items-center gap-3 px-4 py-3"><Users size={18} className="text-[var(--brand)]" /><span><span className="font-display block text-2xl font-extrabold leading-none">{youthPct}%</span><span className="text-xs text-muted">youth, aged 18 to 35</span></span></div>
+            <div className="card flex items-center gap-3 px-4 py-3"><Venus size={18} className="text-[var(--brand)]" /><span><span className="font-display block text-2xl font-extrabold leading-none">{womenPct}%</span><span className="text-xs text-muted">women</span></span></div>
           </div>
         </div>
         <div className="grid gap-4 lg:grid-cols-2">
-          <Donut id="age" title="Registered innovators by age" slices={ages} centre={`${share(s.youth)}%`} centreSub="are youth" />
-          <Donut id="gender" title="Registered innovators by gender" slices={gender} centre={`${share(s.gender.Women)}%`} centreSub="are women" />
+          <Donut id="age" title="Innovators by age" slices={ages} centre={`${youthPct}%`} centreSub="are youth" />
+          <Donut id="gender" title="Innovators by gender" slices={gender} centre={`${womenPct}%`} centreSub="are women" />
         </div>
-        <p className="mt-4 text-xs text-muted">Age and gender are optional in each person’s profile and are only ever shown as totals, in line with the Data Protection Act 2024. Demo data is fictional.</p>
+        <div className="reveal mt-6 grid gap-5 rounded-3xl border border-line bg-surface p-6 sm:p-8 lg:grid-cols-[1.4fr_1fr]">
+          <div>
+            <h3 className="flex items-center gap-2 text-xl font-bold"><Target size={20} className="text-[var(--brand)]" /> Why we show these numbers</h3>
+            <p className="mt-2 text-muted">They are a goalpost, not a scoreboard. Young people already lead, but women are fewer than one in three innovators. Putting the gap in plain sight lets CEDA aim outreach, set targets for each competition, and check every year whether the gap is closing.</p>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <div className="flex justify-between text-sm"><span className="font-semibold">Women innovators</span><span className="text-muted">{womenPct}% now, goal {womenGoal}%</span></div>
+              <div className="relative mt-2 h-2.5 rounded-full bg-sand"><div className="h-full rounded-full bg-[var(--viz-women)]" style={{ width: `${womenPct}%` }} /><span className="absolute -top-1 h-[18px] w-0.5 rounded bg-fg" style={{ left: `${womenGoal}%` }} title={`Goal: ${womenGoal}%`} /></div>
+            </div>
+            <div>
+              <div className="flex justify-between text-sm"><span className="font-semibold">Youth innovators</span><span className="text-muted">{youthPct}% now, keep above 75%</span></div>
+              <div className="relative mt-2 h-2.5 rounded-full bg-sand"><div className="h-full rounded-full bg-[var(--viz-age-3)]" style={{ width: `${youthPct}%` }} /><span className="absolute -top-1 h-[18px] w-0.5 rounded bg-fg" style={{ left: '75%' }} title="Goal: above 75%" /></div>
+            </div>
+          </div>
+        </div>
+        <p className="mt-4 text-xs text-muted">Illustrative figures, shaped like the typical mix in innovation programmes (mostly young, mostly men). On a live portal they come straight from the database: age and gender are optional in each profile and only ever shown as totals, in line with the Data Protection Act 2024.</p>
       </div>
     </section>
   );

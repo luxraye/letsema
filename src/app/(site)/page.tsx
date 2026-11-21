@@ -5,8 +5,8 @@ import QRCode from 'qrcode';
 import { and, desc, eq, ne } from 'drizzle-orm';
 import { ArrowRight, CheckCircle2, FilePen, ShieldCheck, Trophy, Compass, ChevronDown, Clock, Phone } from 'lucide-react';
 import { db, schema } from '@/db';
-import { publicStats, liveInstances, showcase, inclusionStats } from '@/lib/queries';
-import { SdgGoals, InclusionStats } from '@/components/home/impact';
+import { publicStats, liveInstances, showcase } from '@/lib/queries';
+import { SdgGoals, InclusionStats, ILLUSTRATIVE } from '@/components/home/impact';
 import { currentStage, prizePool, pula } from '@/lib/instances';
 import { STATUS } from '@/lib/format';
 import { SECTORS } from '@/lib/catalogue';
@@ -50,8 +50,7 @@ async function demoInnovator() {
 }
 
 export default async function Home() {
-  const [stats, instances, tr, awards, demo, h, inc] = await Promise.all([publicStats(), liveInstances(), t(), showcase(), demoInnovator(), headers(), inclusionStats()]);
-  const pctOf = (n: number) => (inc.total ? Math.round((n / inc.total) * 100) : 0);
+  const [stats, instances, tr, awards, demo, h] = await Promise.all([publicStats(), liveInstances(), t(), showcase(), demoInnovator(), headers()]);
   const origin = `${h.get('x-forwarded-proto') ?? 'https'}://${h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3000'}`;
   const qr = await QRCode.toDataURL(origin, { margin: 1, width: 220, color: { dark: '#14040b' } });
   const featured = instances.find((x) => x.i.featured) ?? instances[0];
@@ -237,10 +236,10 @@ export default async function Home() {
       </section>
 
       {/* UN Sustainable Development Goals */}
-      <SdgGoals m={{ womenPct: pctOf(inc.gender.Women), awarded: stats.awarded, awardedSum: stats.awardedSum, live: stats.live, districts: stats.districts }} />
+      <SdgGoals m={{ womenPct: ILLUSTRATIVE.womenPct, awarded: stats.awarded, awardedSum: stats.awardedSum, live: stats.live, districts: stats.districts }} />
 
       {/* Youth and women representation */}
-      <InclusionStats s={inc} />
+      <InclusionStats />
 
       {/* CTA */}
       <section className="bg-alt pb-16">
