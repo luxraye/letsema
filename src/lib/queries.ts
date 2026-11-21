@@ -22,3 +22,4 @@ export async function showcase() {
   return db.select({ e: schema.entries, instance: schema.instances.name }).from(schema.entries).innerJoin(schema.instances, eq(schema.instances.id, schema.entries.instanceId))
     .where(and(eq(schema.entries.status, 'awarded'), eq(schema.entries.showcase, true), isNotNull(schema.entries.awardAmount))).orderBy(desc(schema.entries.decidedAt));
 }
+

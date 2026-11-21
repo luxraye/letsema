@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowRight, Inbox, Scale, MessagesSquare, Activity, RotateCw } from 'lucide-react';
+import { ArrowUpRight, Inbox, Scale, MessagesSquare, Activity, RotateCw } from 'lucide-react';
 
 const JOBS = [
   { n: '1', h: 'Take in submissions', short: 'One secure place for every idea.', icon: Inbox, href: '/instances',
@@ -34,12 +34,20 @@ export function JobCards() {
                 <p className="mt-1 flex-1 text-sm text-muted">{j.short}</p>
                 <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-copper"><RotateCw size={14} className="transition duration-500 group-hover:rotate-180" /> Tap to see how</span>
               </button>
-              <div id={`job-${j.n}`} className="flip-face flip-back card flex flex-col p-5" aria-hidden={!flipped || undefined}>
-                <div className="flex items-center justify-between"><h3 className="font-bold">{j.h}</h3><button type="button" onClick={() => setOpen(null)} tabIndex={flipped ? 0 : -1} aria-label={`Close ${j.h}`} className="grid size-7 place-items-center rounded-full text-muted hover:bg-sand hover:text-fg"><RotateCw size={14} /></button></div>
-                <ul className="mt-3 flex-1 space-y-2 text-[13.5px] leading-snug">
+              <div id={`job-${j.n}`} className="flip-face flip-back card group/back flex cursor-pointer flex-col p-5" aria-hidden={!flipped || undefined}>
+                {/* The whole back is a button: tap anywhere to flip the card back. */}
+                <button type="button" onClick={() => setOpen(null)} tabIndex={flipped ? 0 : -1} aria-label={`Flip ${j.h} back`} className="absolute inset-0 z-0 rounded-[inherit] focus-visible:outline-2 focus-visible:outline-[var(--brand)]" />
+                <div className="pointer-events-none relative flex items-start justify-between gap-2">
+                  <h3 className="font-bold">{j.h}</h3>
+                  <Link href={j.href} tabIndex={flipped ? 0 : -1} aria-label={`See where “${j.h}” happens`} title="See where it happens"
+                    className="pointer-events-auto relative z-10 -mr-1 -mt-1 inline-flex shrink-0 items-center gap-1 rounded-full bg-[var(--brand)]/12 px-2.5 py-1 text-xs font-bold text-copper transition hover:bg-[var(--brand)] hover:text-white">
+                    See it <ArrowUpRight size={13} />
+                  </Link>
+                </div>
+                <ul className="pointer-events-none relative mt-3 flex-1 space-y-2 text-[13.5px] leading-snug">
                   {j.more.map((m) => <li key={m} className="flex gap-2"><span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-[var(--brand)]" />{m}</li>)}
                 </ul>
-                <Link href={j.href} tabIndex={flipped ? 0 : -1} className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-copper hover:underline">See where it happens <ArrowRight size={14} /></Link>
+                <span className="pointer-events-none relative mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-muted"><RotateCw size={13} className="transition duration-500 group-hover/back:-rotate-180" /> Tap again to flip back</span>
               </div>
             </div>
           </div>

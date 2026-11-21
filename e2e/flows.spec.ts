@@ -122,6 +122,9 @@ test('home: job cards flip to explain, sector tiles open that sector', async ({ 
   await page.getByRole('button', { name: /Evaluate fairly/ }).first().click();
   await expect(page.locator('.flip[data-flipped]')).toHaveCount(1);
   await expect(page.getByText('A panel compares the scores and votes on the winners')).toBeVisible();
+  // Tapping the card body again flips it back.
+  await page.getByRole('button', { name: 'Flip Evaluate fairly back' }).click();
+  await expect(page.locator('.flip[data-flipped]')).toHaveCount(0);
   await page.getByRole('link', { name: /Digital & technology/ }).first().click();
   await expect(page.getByRole('heading', { name: 'Competitions open to Digital & technology' })).toBeVisible();
 });
@@ -138,4 +141,12 @@ test('sign-in: roles are grouped into three dropdowns, one open at a time', asyn
   await expect(page.locator('details[data-group="ceda"]')).not.toHaveAttribute('open', '');
   await page.getByRole('button', { name: /^Innovator/ }).click();
   await page.waitForURL('**/dashboard**');
+});
+
+test('home: SDG goals and inclusion charts show live figures', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Built Around the 2030 Goals' })).toBeVisible();
+  await expect(page.getByText(/Women are \d+% of innovators; the goal is 50%/)).toBeVisible();
+  await expect(page.getByRole('img', { name: /Innovators by gender: Women 28%/ })).toBeAttached();
+  await expect(page.getByRole('img', { name: /Innovators by age: 18–24 28%/ })).toBeAttached();
 });

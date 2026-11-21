@@ -6,6 +6,7 @@ import { and, desc, eq, ne } from 'drizzle-orm';
 import { ArrowRight, CheckCircle2, FilePen, ShieldCheck, Trophy, Compass, ChevronDown, Clock, Phone } from 'lucide-react';
 import { db, schema } from '@/db';
 import { publicStats, liveInstances, showcase } from '@/lib/queries';
+import { SdgGoals, InclusionStats, ILLUSTRATIVE } from '@/components/home/impact';
 import { currentStage, prizePool, pula } from '@/lib/instances';
 import { STATUS } from '@/lib/format';
 import { SECTORS } from '@/lib/catalogue';
@@ -132,7 +133,7 @@ export default async function Home() {
 
       {/* Interactive system map */}
       <section className="relative overflow-hidden bg-ink py-20 text-white">
-        <Ambient silk={false} />
+        <Ambient silk={false} ripples={false} />
         <div className="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="reveal mb-8 text-center">
             <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-amber">Interactive system map</span>
@@ -233,6 +234,12 @@ export default async function Home() {
           )}
         </div>
       </section>
+
+      {/* UN Sustainable Development Goals */}
+      <SdgGoals m={{ womenPct: ILLUSTRATIVE.womenPct, awarded: stats.awarded, awardedSum: stats.awardedSum, live: stats.live, districts: stats.districts }} />
+
+      {/* Youth and women representation */}
+      <InclusionStats />
 
       {/* CTA */}
       <section className="bg-alt pb-16">

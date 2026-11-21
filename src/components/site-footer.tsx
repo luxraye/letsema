@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { ExternalLink } from 'lucide-react';
-import { Logo } from './logo';
+import { Logo, LogoMark } from './logo';
 
 export function SiteFooter() {
   const cols = [
@@ -8,7 +8,7 @@ export function SiteFooter() {
     ['The programme', [['/page/about', 'About'], ['/judges', 'How to judge this portal'], ['/how-it-works', 'How judging works'], ['/funded', 'Funded innovators'], ['/privacy', 'Privacy notice']]],
     ['Help', [['/help', 'Help and FAQs'], ['/help#support', 'Report a problem'], ['/dial', 'No data? Dial *161#'], ['/community', 'Community'], ['/status', 'Status and hosting']]],
   ] as const;
-  const partners = [['https://www.ceda.co.bw', 'CEDA'], ['https://www.cipa.co.bw', 'CIPA company registry'], ['https://www.lea.co.bw', 'Local Enterprise Authority'], ['https://www.bdih.co.bw', 'Botswana Digital & Innovation Hub']] as const;
+  const partners = [['https://www.cipa.co.bw', 'CIPA company registry'], ['https://www.lea.co.bw', 'Local Enterprise Authority'], ['https://www.bdih.co.bw', 'Botswana Digital & Innovation Hub']] as const;
   return (
     <footer className="relative overflow-hidden bg-ink text-white/75">
       <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--t-brand-2)] to-transparent opacity-70" />
@@ -25,6 +25,10 @@ export function SiteFooter() {
           </div>
         ))}
         <div>
+          <a href="https://www.ceda.co.bw" target="_blank" rel="noopener noreferrer" className="mb-5 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3 transition hover:border-white/25 hover:bg-white/[0.07]">
+            <LogoMark className="h-9 w-[58px]" />
+            <span className="leading-tight"><span className="block text-[11px] uppercase tracking-[0.16em] text-white/55">Built for</span><span className="font-display block text-lg font-bold tracking-[0.06em] text-white">CEDA</span></span>
+          </a>
           <div className="mb-3 font-semibold text-white">Partners</div>
           <ul className="space-y-2.5 text-[15px]">{partners.map(([href, label]) => <li key={href}><a href={href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:text-white">{label}<ExternalLink size={12} className="opacity-60" /></a></li>)}</ul>
         </div>

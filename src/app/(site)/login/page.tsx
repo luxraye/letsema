@@ -12,7 +12,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
     <div className="bg-sand">
       <div className="mx-auto grid max-w-[56rem] gap-6 px-4 py-10 sm:px-6 lg:grid-cols-2">
         <div className="card p-6 sm:p-8">
-          <div className="mb-6 text-center"><LogoMark className="mx-auto size-11" /><h1 className="mt-3 text-2xl font-semibold">Sign in</h1><p className="mt-1 text-sm text-muted">CEDA Innovation Portal</p></div>
+          <div className="mb-6 text-center"><LogoMark className="mx-auto h-12 w-[77px]" /><h1 className="mt-3 text-2xl font-semibold">Sign in</h1><p className="mt-1 text-sm text-muted">CEDA Innovation Portal</p></div>
           <LoginForms next={sp.next ?? '/dashboard'} notice={sp.reset ? 'Password changed. Sign in with your new password.' : undefined} />
           <p className="mt-6 text-center text-sm text-muted">New innovator? <Link href="/register" className="font-medium text-[var(--brand)]">Create an account</Link></p>
         </div>

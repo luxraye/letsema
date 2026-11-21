@@ -5,7 +5,7 @@
  */
 const SPARKS = [6, 14, 23, 31, 42, 49, 57, 66, 74, 81, 88, 95];
 
-export function Ambient({ silk = true, sparks = true, className = '' }: { silk?: boolean; sparks?: boolean; className?: string }) {
+export function Ambient({ silk = true, sparks = true, ripples = true, className = '' }: { silk?: boolean; sparks?: boolean; ripples?: boolean; className?: string }) {
   return (
     <div aria-hidden className={`ambient ${className}`}>
       <span className="orb orb-1" /><span className="orb orb-2" /><span className="orb orb-3" />
@@ -22,7 +22,7 @@ export function Ambient({ silk = true, sparks = true, className = '' }: { silk?:
         </>
       )}
       {sparks && SPARKS.map((l, i) => <span key={l} className="spark" style={{ left: `${l}%`, animationDelay: `${(i * 0.83) % 10}s` }} />)}
-      <span className="ripple" /><span className="ripple" style={{ animationDelay: '-2.3s' }} /><span className="ripple" style={{ animationDelay: '-4.6s' }} />
+      {ripples && <><span className="ripple" /><span className="ripple" style={{ animationDelay: '-2.3s' }} /><span className="ripple" style={{ animationDelay: '-4.6s' }} /></>}
       <span className="grain" />
     </div>
   );

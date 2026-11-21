@@ -1,24 +1,32 @@
-/** Portal mark: a seed opening into a spark. Follows the current look's colours. */
-export function LogoMark({ className = 'size-8' }: { className?: string }) {
+/**
+ * CEDA sunrise mark: three bands of a rising sun, red through amber to yellow.
+ * Kept in CEDA's own colours in both looks so the brand is always recognisable.
+ */
+function band(R: number, r: number) {
+  return `M${16 - R} 19A${R} ${R} 0 0 1 ${16 + R} 19L${16 + r} 19A${r} ${r} 0 0 0 ${16 - r} 19Z`;
+}
+
+export function LogoMark({ className = 'h-7 w-[45px]' }: { className?: string }) {
   return (
-    <svg viewBox="0 0 32 32" aria-hidden className={`shrink-0 ${className}`}>
+    <svg viewBox="0 0 32 20" aria-hidden className={`shrink-0 drop-shadow-[0_2px_10px_rgba(248,160,24,.35)] ${className}`}>
       <defs>
-        <linearGradient id="mark-g" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="var(--t-brand-2)" /><stop offset=".55" stopColor="var(--t-brand)" /><stop offset="1" stopColor="var(--t-bark)" /></linearGradient>
+        <linearGradient id="sunrise-outer" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0" stopColor="#a02010" /><stop offset=".55" stopColor="#f06020" /><stop offset="1" stopColor="#f8a018" />
+        </linearGradient>
       </defs>
-      <rect width="32" height="32" rx="10" fill="url(#mark-g)" />
-      <path d="M16 25c-4.6-2.4-7-6-7-10.2C9 11 12 8 16 7c4 1 7 4 7 7.8C23 19 20.6 22.6 16 25Z" fill="#fff" fillOpacity=".18" />
-      <path d="M16 23V12.5M16 12.5c0-2.6 1.9-4.3 4.4-4.5-.1 2.6-1.9 4.4-4.4 4.5Zm0 3.2c0-2.3-1.7-3.9-3.9-4 .1 2.3 1.7 3.9 3.9 4Z" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <circle cx="23.5" cy="8.5" r="1.6" fill="var(--t-accent)" />
+      <path d={band(15, 11.2)} fill="url(#sunrise-outer)" />
+      <path d={band(10.2, 6.9)} fill="#f8a018" />
+      <path d="M10 19A6 6 0 0 1 22 19Z" fill="#f8c808" />
     </svg>
   );
 }
 
-export function Logo({ dark = false, sub = false, label = 'CEDA' }: { dark?: boolean; sub?: boolean; label?: string }) {
+export function Logo({ dark = false, sub = false, label = 'CEDA', className = '' }: { dark?: boolean; sub?: boolean; label?: string; className?: string }) {
   return (
-    <span className="inline-flex items-center gap-2.5">
+    <span className={`inline-flex items-center gap-2.5 ${className}`}>
       <LogoMark />
       <span className="leading-none">
-        <span className={`font-display block text-[18px] font-bold tracking-[0.04em] ${dark ? 'text-white' : 'text-fg'}`}>{label}</span>
+        <span className={`font-display block text-[20px] font-bold tracking-[0.06em] ${dark ? 'text-white' : 'text-fg'}`}>{label}</span>
         {sub && <span className={`mt-1 block text-[9px] font-medium uppercase tracking-[0.2em] ${dark ? 'text-white/60' : 'text-muted'}`}>Innovation Portal</span>}
       </span>
     </span>
