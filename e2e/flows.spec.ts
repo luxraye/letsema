@@ -114,3 +114,12 @@ test('look switch: burgundy by default, one tap to azure, remembered on reload',
   await page.getByRole('button', { name: 'Switch to the Burgundy look' }).first().click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'burgundy');
 });
+
+test('home: job cards flip to explain, sector tiles open that sector', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Evaluate fairly/ }).first().click();
+  await expect(page.locator('.flip[data-flipped]')).toHaveCount(1);
+  await expect(page.getByText('A panel compares the scores and votes on the winners')).toBeVisible();
+  await page.getByRole('link', { name: /Digital & technology/ }).first().click();
+  await expect(page.getByRole('heading', { name: 'Competitions open to Digital & technology' })).toBeVisible();
+});
