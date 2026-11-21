@@ -20,7 +20,7 @@ const MAP: Record<string, Shot[]> = {
     { what: 'Admins design the form, rubric, stages and prizes of each competition (Instance Studio)', href: '/dashboard/instances', as: 'admin' },
     { what: 'Multi-level evaluation: screening, blind scoring, then a panel vote', href: '/dashboard/screening', as: 'admin' },
     { what: 'Feedback and changes: an application sent back, updated, with a word-by-word diff', href: '/dashboard/entries', as: 'innovator' },
-    { what: 'Live chat with working hours, holidays and an out-of-hours message', href: '/dashboard/chat', as: 'consultant' },
+    { what: 'Live chat with working hours, holidays and an out-of-hours message', href: '/dashboard/chat', as: 'admin' },
     { what: 'Support tickets with response and fix deadlines', href: '/help#support' },
     { what: 'FAQs and links to regulators', href: '/help' },
     { what: 'Reports on participation, outcomes, timelines and evaluator fairness', href: '/dashboard/reports', as: 'admin' },
@@ -33,7 +33,7 @@ const MAP: Record<string, Shot[]> = {
   ],
   technical: [
     { what: 'Eight roles with a permission matrix; admins cannot score or vote', href: '/dashboard/users', as: 'admin' },
-    { what: 'Tamper-evident audit trail, verified live, with a tamper demo', href: '/dashboard/audit', as: 'super' },
+    { what: 'Tamper-evident audit trail, verified live, with a tamper demo', href: '/dashboard/audit', as: 'admin' },
     { what: 'Anyone can check the audit chain is unbroken', href: '/api/audit/verify' },
     { what: 'Privacy desk: export or erase your data, with legal deadlines', href: '/dashboard/privacy', as: 'admin' },
     { what: 'API for partners, with keys that are stored only as a fingerprint', href: '/api/v1' },
@@ -53,7 +53,7 @@ export default function Judges() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
       <PageHeader eyebrow="For the judging panel" title="Every scoring criterion, one click away" sub="Each line opens the screen that shows it. Lines marked with a role sign you in as that demo account first, in one click." />
-      <div className="card mb-8 flex flex-wrap items-center gap-3 p-4 text-sm"><KeyRound size={18} className="text-[var(--brand)]" /><span>Accounts: <b className="mono">innovator@demo.ceda.bw</b>, <b className="mono">evaluator@</b>, <b className="mono">panel@</b>, <b className="mono">consultant@</b>, <b className="mono">admin@</b>, <b className="mono">super@</b> and more. Password <b className="mono">CedaDemo2026!</b>. The sign-in page also has one-click demo buttons.</span><Link href="/login" className="btn-primary ml-auto !py-2">Sign in</Link></div>
+      <div className="card mb-8 flex flex-wrap items-center gap-3 p-4 text-sm"><KeyRound size={18} className="text-[var(--brand)]" /><span>Accounts: <b className="mono">innovator@demo.ceda.bw</b>, <b className="mono">evaluator@</b>, <b className="mono">panel@</b>, <b className="mono">admin@</b>, <b className="mono">super@</b> and more. Password <b className="mono">CedaDemo2026!</b>. The sign-in page also has one-click demo buttons.</span><Link href="/login" className="btn-primary ml-auto !py-2">Sign in</Link></div>
       <ol className="space-y-6">
         {HACKATHON_RUBRIC.map((c, n) => (
           <li key={c.key} className="card p-5">

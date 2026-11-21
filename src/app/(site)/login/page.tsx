@@ -19,8 +19,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         {demoMode() && (
           <div className="card min-w-0 p-6">
             <h2 className="text-lg font-semibold">Try it as any role</h2>
-            <p className="mb-4 mt-1 text-sm text-muted">Judges: pick any role below to explore. Password for all: <code className="mono rounded bg-sand px-1.5 py-0.5 text-xs font-bold text-fg">CedaDemo2026!</code></p>
-            <DemoAccounts next={sp.next} compact />
+            <p className="mb-4 mt-1 text-sm text-muted">Pick a side, then a role. You go straight in, no typing needed. Password if you sign in by hand: <code className="mono rounded bg-sand px-1.5 py-0.5 text-xs font-bold text-fg">CedaDemo2026!</code></p>
+            <DemoAccounts next={sp.next} />
             <p className="mt-4 text-sm text-muted">New to the evaluation walkthrough? <Link href="/judges" className="font-medium text-[var(--brand)]">How to judge this portal (each criterion, one click)</Link></p>
           </div>
         )}

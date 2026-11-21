@@ -3,7 +3,9 @@ import { test, expect, type Page } from '@playwright/test';
 async function as(page: Page, who: string) {
   await page.context().clearCookies();
   await page.goto('/login');
-  await page.locator('form', { hasText: who }).first().getByRole('button').click();
+  const form = page.locator('form', { hasText: who }).first();
+  if (!(await form.isVisible())) await page.locator('details', { has: form }).locator('summary').click();
+  await form.getByRole('button').click();
   await page.waitForURL('**/dashboard**');
 }
 const firstDetail = (page: Page, prefix: string) => page.locator(`main a[href^="${prefix}"]`).evaluateAll((as, p) => as.map((a) => a.getAttribute('href')!).find((h) => new RegExp(`^${p}[0-9a-f-]{36}$`).test(h)), prefix);
@@ -122,4 +124,18 @@ test('home: job cards flip to explain, sector tiles open that sector', async ({ 
   await expect(page.getByText('A panel compares the scores and votes on the winners')).toBeVisible();
   await page.getByRole('link', { name: /Digital & technology/ }).first().click();
   await expect(page.getByRole('heading', { name: 'Competitions open to Digital & technology' })).toBeVisible();
+});
+
+test('sign-in: roles are grouped into three dropdowns, one open at a time', async ({ page }) => {
+  await page.context().clearCookies();
+  await page.goto('/login');
+  const groups = page.locator('details[data-group]');
+  await expect(groups).toHaveCount(3);
+  await expect(page.getByRole('button', { name: /Evaluator/ })).toBeHidden();
+  await page.locator('details[data-group="ceda"] summary').click();
+  await expect(page.getByRole('button', { name: /Evaluator/ })).toBeVisible();
+  await page.locator('details[data-group="innovators"] summary').click();
+  await expect(page.locator('details[data-group="ceda"]')).not.toHaveAttribute('open', '');
+  await page.getByRole('button', { name: /^Innovator/ }).click();
+  await page.waitForURL('**/dashboard**');
 });
