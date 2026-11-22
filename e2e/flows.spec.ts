@@ -224,3 +224,11 @@ test('navigation: innovator reaches the forum and competitions without looking s
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole('link', { name: 'Sign in' }).first()).toBeVisible();
 });
+
+test('footer: CEDA contact details with working phone and email links', async ({ page }) => {
+  await page.goto('/');
+  const c = page.getByRole('group', { name: 'Contact CEDA' }).or(page.locator('address[aria-label="Contact CEDA"]')).first();
+  await expect(c).toContainText('Plot 54350');
+  await expect(c.getByRole('link', { name: '+267 317 0895' })).toHaveAttribute('href', 'tel:+2673170895');
+  await expect(c.getByRole('link', { name: 'feedback@ceda.co.bw' })).toHaveAttribute('href', 'mailto:feedback@ceda.co.bw');
+});
