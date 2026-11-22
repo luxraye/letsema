@@ -2,6 +2,16 @@
 
 Our entry for the CEDA Innovation Management Portal Hackathon 2026: one place where CEDA takes in submissions, evaluates them, talks to innovators securely, and tracks all of it.
 
+## Links
+
+| What | Where |
+| --- | --- |
+| Live portal | https://letsema--neon-bw-3x0x.us-east4.hosted.app (judges start at `/judges`) |
+| Walkthrough video (unlisted, about 9 minutes) | https://youtu.be/FZXYH_fw_eQ |
+| Source code | https://github.com/luxraye/letsema |
+
+Built by Local Grow Pty Ltd during the hackathon window. The live portal scales to zero when idle, so the first visit after a quiet spell can take a few seconds.
+
 ## CEDA's four jobs, and where each happens
 
 | CEDA asked for | Where it lives |
