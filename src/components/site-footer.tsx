@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Globe, Mail, MapPin, Phone } from 'lucide-react';
 import { Logo, LogoMark } from './logo';
 
 export function SiteFooter() {
@@ -17,6 +17,15 @@ export function SiteFooter() {
         <div>
           <Logo dark sub />
           <p className="mt-4 max-w-xs text-[15px] leading-relaxed">One place for Batswana to submit ideas, be scored fairly, follow their application and get funded. A CEDA hackathon 2026 prototype; demo data is fictional.</p>
+          <address className="mt-6 not-italic" aria-label="Contact CEDA">
+            <div className="mb-3 font-semibold text-white">Contact CEDA</div>
+            <ul className="space-y-2.5 text-[14px]">
+              <li className="flex gap-2.5"><MapPin size={16} className="mt-0.5 shrink-0 text-amber" /><a href="https://www.google.com/maps/search/?api=1&query=Four+Thirty+Square+Plot+54350+Philip+Matante+Road+Gaborone" target="_blank" rel="noopener noreferrer" className="hover:text-white">Four Thirty Square, Plot 54350,<br />Philip Matante Road, CBD,<br />Gaborone, Botswana</a></li>
+              <li className="flex items-center gap-2.5"><Phone size={16} className="shrink-0 text-amber" /><a href="tel:+2673170895" className="hover:text-white">+267 317 0895</a></li>
+              <li className="flex items-center gap-2.5"><Mail size={16} className="shrink-0 text-amber" /><a href="mailto:feedback@ceda.co.bw" className="break-all hover:text-white">feedback@ceda.co.bw</a></li>
+              <li className="flex items-center gap-2.5"><Globe size={16} className="shrink-0 text-amber" /><a href="https://www.ceda.co.bw" target="_blank" rel="noopener noreferrer" className="hover:text-white">ceda.co.bw</a></li>
+            </ul>
+          </address>
         </div>
         {cols.map(([h, links]) => (
           <div key={h}>
