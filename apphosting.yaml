@@ -2,7 +2,7 @@
 #   firebase apphosting:secrets:set letsema-database-url   (a PostgreSQL URL, e.g. from Neon)
 #   firebase apphosting:secrets:set letsema-session-secret (any long random string)
 runConfig:
-  minInstances: 1
+  minInstances: 0
   maxInstances: 4
   cpu: 1
   memoryMiB: 1024
